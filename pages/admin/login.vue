@@ -1,12 +1,34 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-gray-100">
-    <form @submit.prevent="login" class="bg-white p-8 rounded shadow w-full max-w-md space-y-4">
-      <h1 class="text-xl font-bold">ورود به پنل ادمین</h1>
-      <input v-model="username" placeholder="نام کاربری" class="w-full p-2 border rounded" />
-      <input v-model="password" type="password" placeholder="رمز عبور" class="w-full p-2 border rounded" />
-      <button class="w-full bg-green-600 text-white p-2 rounded">ورود</button>
-      <p v-if="message" class="text-red-600 mt-2">{{ message }}</p>
-    </form>
+  <div class="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900 px-4">
+    <UCard class="w-full max-w-md space-y-4 p-6">
+      <template #header>
+        <h1 class="text-2xl font-bold text-center">ورود به پنل ادمین</h1>
+      </template>
+
+      <form @submit.prevent="login" class="space-y-4">
+        <UInput
+          v-model="username"
+          placeholder="نام کاربری"
+          icon="i-heroicons-user"
+          size="lg"
+          required
+        />
+        <UInput
+          v-model="password"
+          type="password"
+          placeholder="رمز عبور"
+          icon="i-heroicons-lock-closed"
+          size="lg"
+          required
+        />
+
+        <UButton type="submit" color="primary" size="lg" block>ورود</UButton>
+
+        <UAlert v-if="message" color="red" icon="i-heroicons-exclamation-circle" variant="subtle">
+          {{ message }}
+        </UAlert>
+      </form>
+    </UCard>
   </div>
 </template>
 
@@ -16,8 +38,9 @@ const password = ref('')
 const message = ref('')
 
 definePageMeta({
-  middleware: ["auth-redirect"], // یا نام صحیح
-});
+  middleware: ['auth-redirect'],
+})
+
 const login = async () => {
   try {
     const res = await $fetch('/api/auth/login', {
@@ -25,9 +48,9 @@ const login = async () => {
       body: { username: username.value, password: password.value }
     })
     message.value = res.message
-    navigateTo('/admin') // مسیر بعد از ورود موفق
+    navigateTo('/admin')
   } catch (err) {
-    message.value = err.data.statusMessage || 'خطا در ورود'
+    message.value = err?.data?.statusMessage || 'خطا در ورود'
   }
 }
 </script>

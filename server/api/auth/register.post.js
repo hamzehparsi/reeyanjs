@@ -8,14 +8,14 @@ export default defineEventHandler(async (event) => {
 
   const usersCount = await User.countDocuments()
   if (usersCount > 0) {
-    return sendError(event, createError({ statusCode: 400, message: 'Super Admin already exists' }))
+    return sendError(event, createError({ statusCode: 400, message: 'سوپر ادمین از قبل وجود دارد' }))
   }
 
   const body = await readBody(event)
   const { username, password } = body
 
   if (!username || !password) {
-    return sendError(event, createError({ statusCode: 400, message: 'Username and password required' }))
+    return sendError(event, createError({ statusCode: 400, message: 'نام کاربری و رمز عبور الزامی است' }))
   }
 
   // ساخت نقش admin اگر وجود نداشت
@@ -32,5 +32,5 @@ export default defineEventHandler(async (event) => {
     role: adminRole._id
   })
 
-  return { message: '✅ Super Admin created successfully' }
+  return { message: '✅ ادمین با موفقیت ایجاد گردید' }
 })

@@ -9,8 +9,14 @@ export default defineNuxtConfig({
     MONGO_URI: process.env.MONGO_URI,
     JWT_SECRET: process.env.JWT_SECRET,
   },
-  css: ["~/assets/css/main.css"],
-
+  css: ["~/assets/css/main.css", "~/assets/css/style.css"],
+  app: {
+    head: {
+      htmlAttrs: {
+        dir: "rtl",
+      },
+    },
+  },
   vite: {
     plugins: [tailwindcss()],
   },

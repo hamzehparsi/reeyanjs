@@ -20,6 +20,9 @@
         ایجاد Super Admin
       </button>
       <p v-if="message" class="text-green-600 mt-2">{{ message }}</p>
+      <div class="flex justify-center">
+        <NuxtLink to="/admin/login">ورود</NuxtLink>
+      </div>
     </form>
   </div>
 </template>
@@ -30,7 +33,7 @@ const password = ref("");
 const message = ref("");
 
 definePageMeta({
-  middleware: ["auth-redirect"], // یا نام صحیح
+  middleware: ["redirect-if-authenticated"], // یا نام صحیح
 });
 const setup = async () => {
   try {

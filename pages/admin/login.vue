@@ -15,6 +15,9 @@ const username = ref('')
 const password = ref('')
 const message = ref('')
 
+definePageMeta({
+  middleware: ["auth-redirect"], // یا نام صحیح
+});
 const login = async () => {
   try {
     const res = await $fetch('/api/auth/login', {
@@ -24,7 +27,7 @@ const login = async () => {
     message.value = res.message
     navigateTo('/admin') // مسیر بعد از ورود موفق
   } catch (err) {
-    message.value = err.data.message || 'خطا در ورود'
+    message.value = err.data.statusMessage || 'خطا در ورود'
   }
 }
 </script>

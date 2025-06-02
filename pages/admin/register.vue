@@ -29,6 +29,9 @@ const username = ref("");
 const password = ref("");
 const message = ref("");
 
+definePageMeta({
+  middleware: ["auth-redirect"], // یا نام صحیح
+});
 const setup = async () => {
   try {
     const res = await $fetch("/api/auth/register", {

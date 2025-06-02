@@ -1,9 +1,7 @@
-import auth from '~/server/middleware/auth'
-
 export default defineEventHandler(async (event) => {
-  await auth(event) // اجرا کردن middleware
-
+  // middleware خودکار اجرا می‌شود، نیازی به import نیست
+  
   return {
-    user: event.context.user
-  }
-})
+    user: user
+  };
+});

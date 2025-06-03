@@ -1,7 +1,8 @@
 export default defineEventHandler(async (event) => {
-  // middleware خودکار اجرا می‌شود، نیازی به import نیست
-  
-  return {
-    user: user
-  };
+  const user = event.context.user;
+  if (!user) {
+    throw createError({ statusCode: 401, message: "کاربر یافت نشد" });
+  }
+
+  return { user };
 });

@@ -2,7 +2,7 @@
 const auth_user = useAuth();
 
 definePageMeta({
-  // middleware: ['auth-required']
+  middleware: ['auth-required']
 });
 </script>
 

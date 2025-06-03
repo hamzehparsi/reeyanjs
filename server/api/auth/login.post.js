@@ -1,11 +1,9 @@
-import { connectDB } from "~/server/utils/db";
 import User from "~/server/models/User";
 import Role from "~/server/models/Role";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
 export default defineEventHandler(async (event) => {
-  await connectDB();
   const body = await readBody(event);
   const { username, password } = body;
 
@@ -50,5 +48,5 @@ export default defineEventHandler(async (event) => {
     maxAge: 60 * 60 * 24, // 1 روز
   });
 
-  return { message: "ورود موفق بود ✅", user: user };
+  return { message: "ورود موفق بود ✅", user };
 });

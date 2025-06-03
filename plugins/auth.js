@@ -1,24 +1,42 @@
+export default defineNuxtPlugin(async () => {
+  const auth_user = useAuth();
 
-export default defineNuxtPlugin(async (nuxtApp) => {
-  let auth_user = useAuth(); // گرفتن مقدار reactive از store
+  // اگر قبلاً مقداردهی شده، ادامه نده
+  if (auth_user.value) return;
+
+  // بررسی کش در سمت کلاینت
+  if (process.client) {
+    const cachedUser = sessionStorage.getItem('auth_user');
+    if (cachedUser) {
+      try {
+        auth_user.value = JSON.parse(cachedUser);
+        return;
+      } catch {
+        sessionStorage.removeItem('auth_user');
+      }
+    }
+  }
 
   try {
+    const headers = useRequestHeaders(["cookie"]);
+
     const response = await $fetch("/api/auth/me", {
-      // headers: useRequestHeaders(["cookie"]), // ارسال کوکی برای دریافت کاربر
       credentials: "include",
+      headers,
+      timeout: 5000,
     });
-    console.log(response);
-    // console.log(response);
-    
-    // if (response?.user) {
-    //   auth_user.value = response.user; // مقداردهی `auth_user`
-    //   // console.log("✅ User authenticated:", auth_user.value);
-    // } else {
-    //   auth_user.value = null;
-    //   // console.warn("⚠️ No user data found.");
-    // }
-  } catch (error) {
+
+    auth_user.value = response.user;
+
+    // ذخیره در کش کلاینت
+    if (process.client) {
+      sessionStorage.setItem('auth_user', JSON.stringify(response.user));
+    }
+
+  } catch {
     auth_user.value = null;
-    // console.error("❌ Auth error:", error);
+    if (process.client) {
+      sessionStorage.removeItem('auth_user');
+    }
   }
 });

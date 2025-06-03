@@ -2,7 +2,8 @@
 const auth_user = useAuth();
 
 definePageMeta({
-  middleware: ['auth-required']
+  layout: "athenticate",
+  middleware: ["auth-required"],
 });
 </script>
 

@@ -1,11 +1,13 @@
 <template>
   <ClientOnly>
-    <div class="flex flex-col justify-center h-screen">
-      <div class="w-md mx-auto text-center">
-        <!-- <Logo class="mx-auto w-full flex justify-center" /> -->
-        <div class="mb-5 flex flex-col gap-3">
-          <h5 class="font-bold">ورود / ثبت نام</h5>
-          <h6 class="text-xs">لطفا کد ملی و شماره طلبگی خود را وارد کنید.</h6>
+    <div class="w-md mx-auto text-center flex flex-col justify-center h-screen">
+      <div class="p-7 bg-white">
+        <Logo class="size-16 w-full flex justify-center" />
+        <div class="mb-5 flex flex-col gap-2 mt-3">
+          <h5 class="font-bold">خوش آمدید به سامانه مدیریت محتوای ریان</h5>
+          <h6 class="text-xs">
+            برای ورود نام کاربری و رمز عبور خود را وارد نمایید
+          </h6>
         </div>
         <div class="flex flex-col gap-4" style="direction: rtl">
           <label class="text-xs text-right" for="username">نام کاربری</label>
@@ -21,13 +23,24 @@
 
           <UInput
             v-model="password"
-            id="password"
+            placeholder="Password"
             size="xl"
-            variant="outline"
-            placeholder="شماره شناسایی طلبه"
-            class="rounded-lg"
-            type="password"
-          />
+            :type="show ? 'text' : 'password'"
+            :ui="{ trailing: 'pe-1' }"
+          >
+            <template #trailing>
+              <UButton
+                color="neutral"
+                variant="link"
+                size="sm"
+                :icon="show ? 'i-lucide-eye-off' : 'i-lucide-eye'"
+                :aria-label="show ? 'Hide password' : 'Show password'"
+                :aria-pressed="show"
+                aria-controls="password"
+                @click="show = !show"
+              />
+            </template>
+          </UInput>
           <div class="flex flex-col">
             <label class="text-xs text-slate-400 mt-2 mb-4">{{
               mathQuestion
@@ -44,7 +57,7 @@
           <UButton
             @click="login"
             size="xl"
-            class="mt-4 !bg-blue-500 text-center text-white rounded-lg"
+            class="mt-4 bg-blue hover:bg-blue-500 text-center text-white rounded-lg"
             block
             >ورود</UButton
           >
@@ -83,6 +96,7 @@
 
 <script setup>
 const username = ref("");
+const show = ref(false);
 const password = ref("");
 const message = ref("");
 const userAnswer = ref("");
@@ -100,6 +114,7 @@ const generateMathQuestion = () => {
 generateMathQuestion();
 
 definePageMeta({
+  layout: "login",
   middleware: ["redirect-if-authenticated"],
 });
 
@@ -126,11 +141,11 @@ const login = async () => {
     const res = await $fetch("/api/auth/login", {
       method: "POST",
       body: { username: username.value, password: password.value },
-    });    
+    });
 
     auth_user.value = res.user;
     console.log(auth_user.value);
-    
+
     message.value = res.message;
     navigateTo("/admin/dashboard");
   } catch (err) {

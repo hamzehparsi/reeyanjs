@@ -1,7 +1,7 @@
 <template>
   <ClientOnly>
     <div class="w-md mx-auto text-center flex flex-col justify-center h-screen">
-      <div class="p-7 bg-white">
+      <div class="p-7 bg-white rounded-xl">
         <Logo class="size-16 w-full flex justify-center" />
         <div class="mb-5 flex flex-col gap-2 mt-3">
           <h5 class="font-bold">خوش آمدید به سامانه مدیریت محتوای ریان</h5>
@@ -144,10 +144,9 @@ const login = async () => {
     });
 
     auth_user.value = res.user;
-    console.log(auth_user.value);
 
     message.value = res.message;
-    navigateTo("/admin/dashboard");
+    navigateTo("/admin/");
   } catch (err) {
     message.value = err?.data?.statusMessage || "خطا در ورود";
   }

@@ -21,7 +21,7 @@
             :class="[
               'block hover:bg-slate-100 hover:text-slate-600 text-sm tracking-tighter w-full px-4 py-1.5 my-1 rounded-sm transition-all duration-300 ease-in-out',
               route.path === `/admin/content-types/${item.id}`
-                ? 'bg-blue-light text-blue'
+                ? 'bg-blue-light text-blue font-bold hover:!bg-blue-light hover:!text-blue'
                 : 'text-blue-dark',
             ]"
           >

@@ -1,6 +1,6 @@
 @import url(fontiran.css); /* لینک فایلی که وظیفه بارگذاری فونت ها را برعهده دارد */
 body {
-  font-family: "AbarMidFaNum"; 
+  font-family: "Yekan Bakh FaNum"; 
   margin: 0;
 }
 h1,
@@ -11,5 +11,5 @@ h5,
 h6,
 p,
 textarea {
-  font-family: "AbarMidFaNum"; 
+  font-family: "Yekan Bakh FaNum"; 
 }

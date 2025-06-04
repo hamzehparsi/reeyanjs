@@ -1,17 +1,32 @@
+// server/models/ContentType.js
 import mongoose from "mongoose";
+const FieldSchema = new mongoose.Schema({
+  name: String, // مثلاً: title
+  label: String, // مثلاً: عنوان
+  type: {
+    type: String,
+    enum: [
+      'shortText',
+      'longText',
+      'media',
+      'tags',
+      'boolean',
+      'number',
+      'date',
+      'select',
+      'multiSelect'
+    ],
+    default: 'shortText'
+  },
+  options: [String] // فقط برای select و multiSelect
+});
+
 
 const ContentTypeSchema = new mongoose.Schema(
   {
-    name: { type: String, required: true, unique: true }, // slug
-    displayName: { type: String, required: true }, // عنوان قابل نمایش
-    fields: [
-      {
-        name: String,
-        type: String, // short-text, long-text, media, tag, etc.
-        required: Boolean,
-        options: mongoose.Schema.Types.Mixed, // برای dropdown یا enum
-      },
-    ],
+    name: String,
+    displayName: String,
+    fields: [FieldSchema], // فیلدهای مدل اینجا ذخیره می‌شن
   },
   { timestamps: true }
 );

@@ -6,6 +6,6 @@ export default defineNuxtRouteMiddleware((to, from) => {
     token.value &&
     ["/admin/auth/register", "/admin/auth/login"].includes(to.path)
   ) {
-    return navigateTo("/admin/dashboard");
+    return navigateTo("/admin");
   }
 });

@@ -3,8 +3,9 @@
 /* @config "../../tailwind.config.ts"; */
 
 @theme {
-  --color-blue: oklch(0.5302 0.2628 273.7);
+  --color-blue: oklch(0.5119 0.2628 273.7);
   --color-blue-light: oklch(0.9595 0.02 286.02);
+  --color-blue-nice: oklch(0.8954 0.0532 286.45);
   --color-blue-dark: oklch(0.656 0.0399 285.25);
   --color-khakestari: oklch(0.974 0.004 286.33);
   --shadow-myShadow: 0px 15px 50px 0px rgba(27, 32, 50, 0.05);

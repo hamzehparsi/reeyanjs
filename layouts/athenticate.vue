@@ -1,7 +1,13 @@
 <template>
   <div class="bg-khakestari h-screen">
     <FixedMenu />
-    <div class="px-24 py-8">
+    <div class="px-24 py-4">
+      <!-- <div
+        class="font-black tracking-tight w-full border-slate-200 border-b-1 pb-3 mb-4"
+      >
+        سیستم محتوای ریان
+      </div> -->
+
       <slot />
     </div>
   </div>

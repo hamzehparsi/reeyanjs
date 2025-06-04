@@ -1,6 +1,5 @@
 <template>
   <UApp
-    :class="appFontClass"
     :locale="fa_ir"
     :toaster="{ position: 'bottom-center', expand: true, duration: 5000 }"
   >

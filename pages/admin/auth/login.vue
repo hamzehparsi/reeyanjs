@@ -9,15 +9,15 @@
             برای ورود نام کاربری و رمز عبور خود را وارد نمایید
           </h6>
         </div>
-        <div class="flex flex-col gap-4" style="direction: rtl">
+        <div class="flex flex-col gap-2" style="direction: rtl">
           <label class="text-xs text-right" for="username">نام کاربری</label>
           <UInput
             id="username"
             v-model="username"
             size="xl"
             variant="outline"
-            placeholder="کد ملی خود را وارد بفرمایید"
-            class="rounded-lg"
+            placeholder="نام کاربری خود را وارد نمایید"
+            class="rounded-lg placeholder:!text-xs placeholder:!text-teal-400"
           />
           <label class="text-xs text-right" for="password">رمز عبور</label>
 
@@ -42,7 +42,7 @@
             </template>
           </UInput>
           <div class="flex flex-col">
-            <label class="text-xs text-slate-400 mt-2 mb-4">{{
+            <label class="text-xs text-right text-slate-500 mb-2">{{
               mathQuestion
             }}</label>
             <UInput
@@ -57,7 +57,7 @@
           <UButton
             @click="login"
             size="xl"
-            class="mt-4 bg-blue hover:bg-blue-500 text-center text-white rounded-lg"
+            class="mt-4 bg-blue hover:bg-blue-500 text-white rounded-lg"
             block
             >ورود</UButton
           >

@@ -40,7 +40,7 @@
           <!-- مدیریت نوع محتوا -->
           <NuxtLink to="/admin/content-types" class="relative group">
             <div
-              class="absolute w-32 right-12 top-1/2 -translate-y-1/2 opacity-0 translate-x-4 group-hover:translate-x-0 group-hover:opacity-100 bg-slate-900 text-white text-xs rounded-lg px-4 py-2 transition-all duration-300 ease-in-out pointer-events-none"
+              class="absolute w-36 right-12 top-1/2 -translate-y-1/2 opacity-0 translate-x-4 group-hover:translate-x-0 group-hover:opacity-100 bg-slate-900 text-white text-xs rounded-lg px-4 py-2 transition-all duration-300 ease-in-out pointer-events-none"
             >
               مدیریت انواع محتوا
             </div>

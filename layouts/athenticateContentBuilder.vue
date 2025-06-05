@@ -155,6 +155,20 @@ const contentTypes = computed(() => {
     })) || []
   );
 });
+onMounted(async () => {
+  if (route.query.refresh) {
+    // گرفتن لیست جدید
+    const { data } = await useFetch("/api/content-types");
+    const contentTypes = computed(() => {
+      return (
+        data.value?.contentTypes?.map((item) => ({
+          id: item._id,
+          name: item.displayName,
+        })) || []
+      );
+    });
+  }
+});
 </script>
 
 <style></style>

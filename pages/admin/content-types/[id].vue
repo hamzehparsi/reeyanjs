@@ -6,6 +6,15 @@ const deleteOpen = ref(false);
 const selectedFieldId = ref(null);
 const editOpen = ref(false);
 const editingField = ref(null);
+const contentTypeEditOpen = ref(false);
+const contentTypeEditForm = reactive({
+  displayName: "",
+});
+
+function openEditContentTypeModal() {
+  contentTypeEditForm.displayName = contentType.value.displayName || "";
+  contentTypeEditOpen.value = true;
+}
 
 const editForm = reactive({
   name: "",
@@ -45,6 +54,21 @@ async function submitEditField() {
 
   editOpen.value = false;
   refresh();
+}
+async function submitEditContentType() {
+  try {
+    await $fetch(`/api/content-types/${id}`, {
+      method: "PUT",
+      body: {
+        displayName: contentTypeEditForm.displayName.trim(),
+      },
+    });
+
+    contentTypeEditOpen.value = false;
+    refresh();
+  } catch (error) {
+    console.error("خطا در ویرایش نوع محتوا", error);
+  }
 }
 
 const { data, pending, error, refresh } = await useFetch(
@@ -122,16 +146,27 @@ async function deleteField(fieldId) {
     <div v-else>
       <div class="flex justify-between items-center w-full">
         <div class="flex flex-col gap-1 pr-3">
-          <h1 class="text-xl font-bold">{{ contentType.displayName }}</h1>
+          <h1 class="text-xl font-bold tracking-tighter">
+            {{ contentType.displayName }}
+          </h1>
           <span class="text-xs text-blue-dark">{{ contentType._id }}</span>
         </div>
-        <button
-          @click="open = !open"
-          class="bg-blue-light flex items-center gap-2 rounded-md text-sm tracking-tighter px-4 py-2 text-blue font-semibold hover:bg-white border transition-all duration-300 ease-in-out border-blue-nice"
-        >
-          <IconsAddNote class="size-5" />
-          <span class="pt-1"> اضافه کردن فیلد </span>
-        </button>
+        <div class="flex items-center gap-3">
+          <button
+            @click="open = !open"
+            class="bg-blue-light flex items-center gap-2 rounded-md text-sm tracking-tighter px-4 py-2 text-blue font-semibold hover:bg-white border transition-all duration-300 ease-in-out border-blue-nice"
+          >
+            <IconsAddNote class="size-5" />
+            <span class="pt-1 text-xs"> اضافه کردن فیلد </span>
+          </button>
+          <button
+            @click="openEditContentTypeModal"
+            class="bg-white flex items-center gap-2 rounded-md text-sm tracking-tighter px-4 py-2 text-blue font-semibold hover:bg-white border transition-all duration-300 ease-in-out border-blue-nice"
+          >
+            <IconsEditIcon class="size-4" />
+            <span class="pt-1 text-xs">ویرایش</span>
+          </button>
+        </div>
       </div>
 
       <div
@@ -281,7 +316,7 @@ async function deleteField(fieldId) {
           color="neutral"
           variant="outline"
           class="bg-white px-4 py-2 text-slate-500 hover:bg-white border border-blue-nice"
-          @click="close"
+          @click="open = !open"
         />
       </div>
     </template>
@@ -331,7 +366,7 @@ async function deleteField(fieldId) {
           color="neutral"
           variant="outline"
           class="bg-white px-4 py-2 text-slate-500 hover:bg-white border border-blue-nice"
-          @click="close"
+          @click="deleteOpen = !deleteOpen"
         />
       </div>
     </template>
@@ -378,20 +413,56 @@ async function deleteField(fieldId) {
     </template>
 
     <template #footer="{ close }">
-      <div class="flex justify-between">
+      <div class="flex justify-between items-center w-full">
         <UButton
           @click="submitEditField"
-          class="bg-blue-light text-blue font-semibold border border-blue-nice"
+          class="bg-blue-light tracking-tighter px-4 py-2 text-blue font-semibold hover:bg-white border border-blue-nice"
         >
           ذخیره تغییرات
         </UButton>
         <UButton
-          @click="close"
+          @click="editOpen = !editOpen"
           variant="outline"
-          class="text-slate-500 border border-blue-nice"
+          class="bg-white px-4 py-2 !text-slate-400 hover:bg-white border !border-blue-nice"
         >
           انصراف
         </UButton>
+      </div>
+    </template>
+  </UModal>
+  <!-- modal ویرایش خود نوع محتوا -->
+  <UModal v-model:open="contentTypeEditOpen">
+    <template #title>
+      <div class="flex items-center gap-2">
+        <div class="bg-blue text-xs text-white rounded-sm px-2 py-1">Edit</div>
+        <div class="text-lg font-bold">ویرایش نوع محتوا</div>
+      </div>
+    </template>
+
+    <template #body>
+      <div class="space-y-4">
+        <div class="flex flex-col gap-2">
+          <label class="text-xs">نام نمایشی نوع محتوا</label>
+          <UInput v-model="contentTypeEditForm.displayName" />
+        </div>
+      </div>
+    </template>
+
+    <template #footer="{ close }">
+      <div class="flex justify-between items-center w-full">
+        <UButton
+          @click="submitEditContentType"
+          class="bg-blue-light tracking-tighter px-4 py-2 text-blue font-semibold hover:bg-white border border-blue-nice"
+        >
+          ذخیره تغییرات
+        </UButton>
+        <UButton
+          label="انصراف"
+          color="neutral"
+          variant="outline"
+          class="bg-white px-4 py-2 text-slate-500 hover:bg-white border border-blue-nice"
+          @click="contentTypeEditOpen =!contentTypeEditOpen"
+        />
       </div>
     </template>
   </UModal>

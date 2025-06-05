@@ -2,7 +2,7 @@
   <ClientOnly>
     <div class="w-md mx-auto text-center flex flex-col justify-center h-screen">
       <div class="p-7 bg-white rounded-xl">
-        <Logo class="size-16 w-full flex justify-center" />
+        <Logo class="size-20 w-full flex justify-center" />
         <div class="mb-5 flex flex-col gap-2 mt-3">
           <h5 class="font-bold">خوش آمدید به سامانه مدیریت محتوای ریان</h5>
           <h6 class="text-xs">

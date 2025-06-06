@@ -6,26 +6,27 @@ const FieldSchema = new mongoose.Schema({
   type: {
     type: String,
     enum: [
-      'shortText',
-      'longText',
-      'media',
-      'tags',
-      'boolean',
-      'number',
-      'date',
-      'select',
-      'multiSelect'
+      "shortText",
+      "longText",
+      "media",
+      "tags",
+      "boolean",
+      "number",
+      "date",
+      "select",
+      "multiSelect",
     ],
-    default: 'shortText'
+    default: "shortText",
   },
-  options: [String] // فقط برای select و multiSelect
+  options: [String], // فقط برای select و multiSelect
 });
-
 
 const ContentTypeSchema = new mongoose.Schema(
   {
     name: String,
     displayName: String,
+    collectionName: String, // articles (جدید!)
+
     fields: [FieldSchema], // فیلدهای مدل اینجا ذخیره می‌شن
   },
   { timestamps: true }

@@ -1,14 +1,15 @@
+// server/utils/model-factory.js
 import mongoose from "mongoose";
 import ContentType from "~/server/models/ContentType";
 
 const modelCache = {};
-
-export async function getModelByName(name) {
-  if (modelCache[name]) {
-    return modelCache[name];
+export async function getModelByName(collectionName) {
+  if (modelCache[collectionName]) {
+    return modelCache[collectionName];
   }
 
-  const contentType = await ContentType.findOne({ name });
+  // ← تغییر اصلی این خطه
+  const contentType = await ContentType.findOne({ collectionName });
 
   if (!contentType) {
     return null;
@@ -45,8 +46,8 @@ export async function getModelByName(name) {
     timestamps: true,
   });
 
-  const Model = mongoose.models[name] || mongoose.model(name, schema);
-  modelCache[name] = Model;
+  const Model = mongoose.models[collectionName] || mongoose.model(collectionName, schema);
+  modelCache[collectionName] = Model;
 
   return Model;
 }

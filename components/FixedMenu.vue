@@ -22,16 +22,16 @@
             />
           </NuxtLink>
           <!-- محتوا -->
-          <NuxtLink to="/admin/content" class="relative group">
+          <NuxtLink to="/admin/collection" class="relative group">
             <div
               class="absolute right-12 top-1/2 -translate-y-1/2 opacity-0 translate-x-4 group-hover:translate-x-0 group-hover:opacity-100 bg-slate-900 text-white text-xs rounded-lg px-4 py-2 transition-all duration-300 ease-in-out pointer-events-none"
             >
               محتوا
             </div>
             <IconsContent
-              :class="[
+:class="[
                 'size-8 p-1 rounded-lg hover:bg-blue-light transition-all duration-300 ease-in-out',
-                route.path === '/admin/content'
+                route.path.startsWith('/admin/collection')
                   ? 'bg-blue-light text-blue'
                   : 'text-blue-dark',
               ]"
@@ -40,7 +40,7 @@
           <!-- مدیریت نوع محتوا -->
           <NuxtLink to="/admin/content-types" class="relative group">
             <div
-              class="absolute w-36 right-12 top-1/2 -translate-y-1/2 opacity-0 translate-x-4 group-hover:translate-x-0 group-hover:opacity-100 bg-slate-900 text-white text-xs rounded-lg px-4 py-2 transition-all duration-300 ease-in-out pointer-events-none"
+              class="absolute w-auto text-nowrap right-12 top-1/2 -translate-y-1/2 opacity-0 translate-x-4 group-hover:translate-x-0 group-hover:opacity-100 bg-slate-900 text-white text-xs rounded-lg px-4 py-2 transition-all duration-300 ease-in-out pointer-events-none"
             >
               مدیریت انواع محتوا
             </div>

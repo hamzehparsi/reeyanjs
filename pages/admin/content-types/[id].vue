@@ -149,7 +149,7 @@ async function deleteField(fieldId) {
           <h1 class="text-xl font-bold tracking-tighter">
             {{ contentType.displayName }}
           </h1>
-          <span class="text-xs text-blue-dark">{{ contentType._id }}</span>
+          <span class="text-xs text-blue-dark">{{ contentType?.collectionName }}</span>
         </div>
         <div class="flex items-center gap-3">
           <button

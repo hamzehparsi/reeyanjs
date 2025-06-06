@@ -8,7 +8,10 @@
         class="flex items-center justify-between w-full border-slate-200 border-b-1 pb-4 pt-1"
       >
         <span class="font-semibold tracking-tighter">لیست انواح محتوا</span>
-        <IconsAddNote @click="open = !open" class="text-blue-dark size-5" />
+        <IconsAddNote
+          @click="open = !open"
+          class="text-slate-400 hover:bg-blue-light p-1 size-7 rounded-lg transition-all duration-300 ease-in-out cursor-pointer"
+        />
       </div>
       <div class="">
         <div
@@ -93,6 +96,20 @@
             required
           />
         </div>
+        <div class="flex gap-2 flex-col">
+          <label class="text-xs text-right block mb-1" for="displayName"
+            >شناسه API (جمع)</label
+          >
+
+          <UInput
+            :model-value="pluralizedName"
+            readonly
+            variant="outline"
+            placeholder="مثلاً: articles"
+            class="rounded-lg text-xs text-teal-400"
+            label="نام کالکشن (جمع)"
+          />
+        </div>
       </div>
     </template>
 
@@ -119,6 +136,9 @@
 <script setup>
 const open = ref(false);
 const route = useRoute();
+import pluralize from "pluralize";
+const pluralizedName = computed(() => pluralize(formState.name.trim()));
+
 const { data, pending, error, refresh } = await useFetch(
   "/api/content-types",
   {}

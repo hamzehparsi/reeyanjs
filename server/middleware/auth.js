@@ -20,8 +20,14 @@ export default defineEventHandler(async (event) => {
   if (publicRoutes.includes(event.node.req.url)) {
     return;
   }
+let token = getCookie(event, "token");
 
-  const token = getCookie(event, "token");
+if (!token) {
+  const authHeader = getRequestHeader(event, "authorization");
+  if (authHeader && authHeader.startsWith("Bearer ")) {
+    token = authHeader.split(" ")[1];
+  }
+}
   const config = useRuntimeConfig();
 
   if (!token) {

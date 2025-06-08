@@ -7,10 +7,11 @@ const selectedFieldId = ref(null);
 const editOpen = ref(false);
 const editingField = ref(null);
 const contentTypeEditOpen = ref(false);
+const contentTypesState = useState('contentTypes');
+// import { useContentTypes } from '~/composables/useContentTypes';
 const contentTypeEditForm = reactive({
   displayName: "",
 });
-
 function openEditContentTypeModal() {
   contentTypeEditForm.displayName = contentType.value.displayName || "";
   contentTypeEditOpen.value = true;
@@ -55,19 +56,22 @@ async function submitEditField() {
   editOpen.value = false;
   refresh();
 }
+const { fetchContentTypes } = useContentTypes();
+
 async function submitEditContentType() {
   try {
     await $fetch(`/api/content-types/${id}`, {
-      method: "PUT",
+      method: 'PUT',
       body: {
         displayName: contentTypeEditForm.displayName.trim(),
       },
     });
 
     contentTypeEditOpen.value = false;
-    refresh();
+    refresh(); // رفرش داده‌های صفحه فعلی
+    await fetchContentTypes(); // رفرش لیست contentTypes در state مشترک
   } catch (error) {
-    console.error("خطا در ویرایش نوع محتوا", error);
+    console.error('خطا در ویرایش نوع محتوا', error);
   }
 }
 

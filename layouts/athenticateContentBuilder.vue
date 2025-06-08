@@ -13,13 +13,13 @@
           class="text-slate-400 hover:bg-blue-light p-1 size-7 rounded-lg transition-all duration-300 ease-in-out cursor-pointer"
         />
       </div>
-      <div class="">
-        <div
-          class="w-full space-y-2"
-          v-for="item in contentTypes"
-          :key="item.id"
-        >
+      <div>
+        <div v-if="pending">⏳ در حال بارگذاری...</div>
+        <div v-else-if="error">❌ خطا: {{ error }}</div>
+        <div v-else class="w-full space-y-2">
           <NuxtLink
+            v-for="item in contentTypes"
+            :key="item.id"
             :to="`/admin/content-types/${item.id}`"
             :class="[
               'block hover:bg-slate-100 hover:text-slate-600 text-sm tracking-tighter w-full px-4 py-1.5 my-1 rounded-sm transition-all duration-300 ease-in-out',
@@ -63,7 +63,7 @@
     </template>
     <template #description>
       <div class="text-xs tracking-tighter text-slate-400">
-        شما می توانید در این قسمت یک نوع محتوای جدید ایجاد نمایید
+        شما می‌توانید در این قسمت یک نوع محتوای جدید ایجاد نمایید
       </div>
     </template>
     <template #body>
@@ -100,7 +100,6 @@
           <label class="text-xs text-right block mb-1" for="displayName"
             >شناسه API (جمع)</label
           >
-
           <UInput
             :model-value="pluralizedName"
             readonly
@@ -112,7 +111,6 @@
         </div>
       </div>
     </template>
-
     <template #footer="{ close }">
       <div class="flex justify-between items-center w-full">
         <UButton
@@ -134,61 +132,51 @@
 </template>
 
 <script setup>
-const open = ref(false);
+import { ref, computed, reactive } from 'vue';
+import pluralize from 'pluralize';
+import { useContentTypes } from '~/composables/useContentTypes';
+
 const route = useRoute();
-import pluralize from "pluralize";
+const open = ref(false);
+
+// استفاده از composable برای مدیریت contentTypes
+const { contentTypesState, fetchContentTypes } = useContentTypes();
+
+// دسترسی به contentTypes، pending و error از state
+const contentTypes = computed(() => contentTypesState.value.contentTypes);
+const pending = computed(() => contentTypesState.value.pending);
+const error = computed(() => contentTypesState.value.error);
+
+// محاسبه نام جمع
 const pluralizedName = computed(() => pluralize(formState.name.trim()));
 
-const { data, pending, error, refresh } = await useFetch(
-  "/api/content-types",
-  {}
-);
-
 const formState = reactive({
-  name: "",
-  displayName: "",
+  name: '',
+  displayName: '',
 });
 
+// ایجاد نوع محتوای جدید
 async function createContentType() {
   try {
-    await $fetch("/api/content-types", {
-      method: "POST",
+    await $fetch('/api/content-types', {
+      method: 'POST',
       body: {
         name: formState.name.trim(),
         displayName: formState.displayName.trim(),
       },
     });
-    refresh();
-    formState.name = "";
-    formState.displayName = "";
+    await fetchContentTypes(); // رفرش لیست contentTypes
+    formState.name = '';
+    formState.displayName = '';
     open.value = false;
-    navigateTo("/admin/content-types");
+    navigateTo('/admin/content-types');
   } catch (err) {
-    console.log(err);
+    console.error('خطا در ایجاد نوع محتوا:', err);
   }
 }
-const contentTypes = computed(() => {
-  return (
-    data.value?.contentTypes?.map((item) => ({
-      id: item._id,
-      name: item.displayName,
-    })) || []
-  );
-});
-onMounted(async () => {
-  if (route.query.refresh) {
-    // گرفتن لیست جدید
-    const { data } = await useFetch("/api/content-types");
-    const contentTypes = computed(() => {
-      return (
-        data.value?.contentTypes?.map((item) => ({
-          id: item._id,
-          name: item.displayName,
-        })) || []
-      );
-    });
-  }
-});
+
+// دریافت اولیه contentTypes هنگام بارگذاری لِی‌اوت
+await fetchContentTypes();
 </script>
 
 <style></style>

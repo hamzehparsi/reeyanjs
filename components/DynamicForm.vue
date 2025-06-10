@@ -86,7 +86,7 @@ function handleSubmit() {
       </div>
     </div>
 
-    <button type="submit" class="bg-blue-600 text-white py-2 px-4 rounded">
+    <button type="submit" class="bg-blue text-white py-2 px-4 rounded-lg">
       ذخیره
     </button>
   </form>

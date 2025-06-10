@@ -8,6 +8,12 @@ export async function getModelByName(collectionName) {
     return modelCache[collectionName];
   }
 
+  // اگر مدل قبلاً در mongoose ساخته شده باشد، همان را استفاده کن
+  if (mongoose.models[collectionName]) {
+    modelCache[collectionName] = mongoose.models[collectionName];
+    return mongoose.models[collectionName];
+  }
+
   // ← تغییر اصلی این خطه
   const contentType = await ContentType.findOne({ collectionName });
 

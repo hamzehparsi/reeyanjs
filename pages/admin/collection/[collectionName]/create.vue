@@ -1,7 +1,7 @@
 <script setup>
 const route = useRoute();
 const router = useRouter();
-const collectionName = route.params["collectionname"];
+const collectionName = route.params["collectionName"];
 const toast = useToast();
 definePageMeta({
   layout: "athenticate-content",
@@ -11,6 +11,7 @@ definePageMeta({
 const { data: contentType } = await useFetch(
   `/api/content-types/by-name/${collectionName}`
 );
+
 const fields = contentType.value.fields;
 
 async function submitHandler(data) {

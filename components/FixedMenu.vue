@@ -1,9 +1,9 @@
 <template>
   <div class="fixed right-0 h-screen bg-white w-16 border-l-1 border-slate-200">
     <div class="flex flex-col justify-between h-screen p-2 relative z-50">
-      <div class="border-b border-slate-200 pb-3">
+      <NuxtLink to="/" class="border-b border-slate-200 pb-3">
         <Logo class="size-10 w-full flex justify-center" />
-      </div>
+      </NuxtLink>
       <div class="w-full flex justify-center">
         <div class="flex flex-col gap-4 relative">
           <NuxtLink to="/admin" class="group relative">

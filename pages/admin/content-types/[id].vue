@@ -89,6 +89,7 @@ const formState = reactive({
 const fieldTypes = [
   { label: "متن کوتاه", value: "shortText" },
   { label: "متن بلند", value: "longText" },
+  { label: "ویرایشگر متنی", value: "richText" },
   { label: "رسانه", value: "media" },
   { label: "برچسب‌ها", value: "tags" },
   { label: "بولی", value: "boolean" },
@@ -156,26 +157,20 @@ async function deleteField(fieldId) {
           <span class="text-xs text-blue-dark">{{ contentType?.collectionName }}</span>
         </div>
         <div class="flex items-center gap-3">
-          <button
-            @click="open = !open"
-            class="bg-blue-light flex items-center gap-2 rounded-md text-sm tracking-tighter px-4 py-2 text-blue font-semibold hover:bg-white border transition-all duration-300 ease-in-out border-blue-nice"
-          >
+          <button @click="open = !open"
+            class="bg-blue-light flex items-center gap-2 rounded-md text-sm tracking-tighter px-4 py-2 text-blue font-semibold hover:bg-white border transition-all duration-300 ease-in-out border-blue-nice">
             <IconsAddNote class="size-5" />
             <span class="pt-1 text-xs"> اضافه کردن فیلد </span>
           </button>
-          <button
-            @click="openEditContentTypeModal"
-            class="bg-white flex items-center gap-2 rounded-md text-sm tracking-tighter px-4 py-2 text-blue font-semibold hover:bg-white border transition-all duration-300 ease-in-out border-blue-nice"
-          >
+          <button @click="openEditContentTypeModal"
+            class="bg-white flex items-center gap-2 rounded-md text-sm tracking-tighter px-4 py-2 text-blue font-semibold hover:bg-white border transition-all duration-300 ease-in-out border-blue-nice">
             <IconsEditIcon class="size-4" />
             <span class="pt-1 text-xs">ویرایش</span>
           </button>
         </div>
       </div>
 
-      <div
-        class="bg-white mt-6 rounded-xl flex p-7 w-full justify-center flex-col"
-      >
+      <div class="bg-white mt-6 rounded-xl flex p-7 w-full justify-center flex-col">
         <div v-if="contentType.fields?.length">
           <div class="divide-y-2 divide-blue-light">
             <div v-for="(field, index) in contentType.fields" :key="index">
@@ -184,23 +179,18 @@ async function deleteField(fieldId) {
                 <div class="flex items-center gap-2">
                   <span @click="openEditModal(field)">
                     <IconsEditIcon
-                      class="size-7 p-1 rounded-lg text-blue-dark hover:bg-blue-light hover:text-blue transition-all duration-300 ease-in-out"
-                    />
+                      class="size-7 p-1 rounded-lg text-blue-dark hover:bg-blue-light hover:text-blue transition-all duration-300 ease-in-out" />
                   </span>
                   <span @click="confirmDelete(field._id)">
                     <IconsDeleteIcon
-                      class="size-7 p-1 rounded-lg text-blue-dark hover:bg-red-100 hover:text-red-500 transition-all duration-300 ease-in-out"
-                    />
+                      class="size-7 p-1 rounded-lg text-blue-dark hover:bg-red-100 hover:text-red-500 transition-all duration-300 ease-in-out" />
                   </span>
                 </div>
               </div>
             </div>
           </div>
         </div>
-        <div
-          v-else
-          class="bg-white rounded-xl flex h-96 w-full justify-center flex-col"
-        >
+        <div v-else class="bg-white rounded-xl flex h-96 w-full justify-center flex-col">
           <IconsNoField class="size-42 mx-auto" />
           <span class="text-sm text-blue-dark text-center">
             اولین فیلد خود را به این نوع محتوا اضافه کنید
@@ -211,19 +201,16 @@ async function deleteField(fieldId) {
   </div>
 
   <!-- modal: اضافه کردن فیلد -->
-  <UModal
-    :ui="{
-      modal: {
-        slots: {
-          overlay: 'fixed inset-0 bg-elevated/75',
-          content:
-            'fixed bg-default divide-y divide-default flex flex-col focus:outline-none',
-          header: 'bg-blue',
-        },
+  <UModal :ui="{
+    modal: {
+      slots: {
+        overlay: 'fixed inset-0 bg-elevated/75',
+        content:
+          'fixed bg-default divide-y divide-default flex flex-col focus:outline-none',
+        header: 'bg-blue',
       },
-    }"
-    v-model:open="open"
-  >
+    },
+  }" v-model:open="open">
     <template #title>
       <div class="flex items-center gap-2">
         <div class="bg-blue text-xs text-white rounded-sm px-2 py-1">Field</div>
@@ -241,105 +228,57 @@ async function deleteField(fieldId) {
       <div class="space-y-4">
         <!-- name -->
         <div class="flex gap-2 flex-col">
-          <label class="text-xs text-right block mb-1" for="name"
-            >نام فیلد (انگلیسی)</label
-          >
-          <UInput
-            id="name"
-            v-model="formState.name"
-            size="xl"
-            variant="outline"
-            placeholder="مثلاً: title"
-            class="rounded-lg placeholder:!text-xs placeholder:!text-teal-400"
-            required
-          />
+          <label class="text-xs text-right block mb-1" for="name">نام فیلد (انگلیسی)</label>
+          <UInput id="name" v-model="formState.name" size="xl" variant="outline" placeholder="مثلاً: title"
+            class="rounded-lg placeholder:!text-xs placeholder:!text-teal-400" required />
         </div>
 
         <!-- label -->
         <div class="flex gap-2 flex-col">
-          <label class="text-xs text-right block mb-1" for="label"
-            >برچسب نمایشی (فارسی)</label
-          >
-          <UInput
-            id="label"
-            v-model="formState.label"
-            size="xl"
-            variant="outline"
-            placeholder="مثلاً: عنوان"
-            class="rounded-lg placeholder:!text-xs placeholder:!text-teal-400"
-            required
-          />
+          <label class="text-xs text-right block mb-1" for="label">برچسب نمایشی (فارسی)</label>
+          <UInput id="label" v-model="formState.label" size="xl" variant="outline" placeholder="مثلاً: عنوان"
+            class="rounded-lg placeholder:!text-xs placeholder:!text-teal-400" required />
         </div>
 
         <!-- type -->
         <div class="flex gap-2 flex-col">
-          <label class="text-xs text-right block mb-1" for="type"
-            >نوع فیلد</label
-          >
-          <USelect
-            id="type"
-            v-model="formState.type"
-            size="xl"
-            :items="fieldTypes"
-            option-attribute="label"
-            value-attribute="value"
-            class="rounded-lg"
-          />
+          <label class="text-xs text-right block mb-1" for="type">نوع فیلد</label>
+          <USelect id="type" v-model="formState.type" size="xl" :items="fieldTypes" option-attribute="label"
+            value-attribute="value" class="rounded-lg" />
         </div>
 
         <!-- options (select/multiSelect) -->
-        <div
-          v-if="['select', 'multiSelect'].includes(formState.type)"
-          class="flex gap-2 flex-col"
-        >
-          <label class="text-xs text-right block mb-1" for="options"
-            >گزینه‌ها (با ویرگول جدا کنید)</label
-          >
-          <UInput
-            id="options"
-            v-model="formState.optionsString"
-            size="xl"
-            variant="outline"
-            placeholder="مثلاً: فعال, غیرفعال"
-            class="rounded-lg placeholder:!text-xs placeholder:!text-teal-400"
-          />
+        <div v-if="['select', 'multiSelect'].includes(formState.type)" class="flex gap-2 flex-col">
+          <label class="text-xs text-right block mb-1" for="options">گزینه‌ها (با ویرگول جدا کنید)</label>
+          <UInput id="options" v-model="formState.optionsString" size="xl" variant="outline"
+            placeholder="مثلاً: فعال, غیرفعال" class="rounded-lg placeholder:!text-xs placeholder:!text-teal-400" />
         </div>
       </div>
     </template>
     <template #footer="{ close }">
       <div class="flex justify-between items-center w-full">
-        <UButton
-          @click="submitField"
+        <UButton @click="submitField"
           class="bg-blue-light tracking-tighter px-4 py-2 text-blue font-semibold hover:bg-white border border-blue-nice"
-          color="neutral"
-        >
+          color="neutral">
           افزودن فیلد
         </UButton>
-        <UButton
-          label="انصراف"
-          color="neutral"
-          variant="outline"
-          class="bg-white px-4 py-2 text-slate-500 hover:bg-white border border-blue-nice"
-          @click="open = !open"
-        />
+        <UButton label="انصراف" color="neutral" variant="outline"
+          class="bg-white px-4 py-2 text-slate-500 hover:bg-white border border-blue-nice" @click="open = !open" />
       </div>
     </template>
   </UModal>
 
   <!-- modal: حذف فیلد -->
-  <UModal
-    :ui="{
-      modal: {
-        slots: {
-          overlay: 'fixed inset-0 bg-elevated/75',
-          content:
-            'fixed bg-default divide-y divide-default flex flex-col focus:outline-none',
-          header: 'bg-blue',
-        },
+  <UModal :ui="{
+    modal: {
+      slots: {
+        overlay: 'fixed inset-0 bg-elevated/75',
+        content:
+          'fixed bg-default divide-y divide-default flex flex-col focus:outline-none',
+        header: 'bg-blue',
       },
-    }"
-    v-model:open="deleteOpen"
-  >
+    },
+  }" v-model:open="deleteOpen">
     <template #title>
       <div class="flex items-center gap-2">
         <div class="bg-red-500 text-xs text-white rounded-sm px-2 py-1">
@@ -358,20 +297,14 @@ async function deleteField(fieldId) {
     </template>
     <template #footer="{ close }">
       <div class="flex justify-between items-center w-full">
-        <UButton
-          @click="deleteField(selectedFieldId)"
+        <UButton @click="deleteField(selectedFieldId)"
           class="bg-red-50 tracking-tighter px-4 py-2 text-red-500 font-semibold hover:bg-white border border-red-200"
-          color="neutral"
-        >
+          color="neutral">
           حذف فیلد
         </UButton>
-        <UButton
-          label="انصراف"
-          color="neutral"
-          variant="outline"
+        <UButton label="انصراف" color="neutral" variant="outline"
           class="bg-white px-4 py-2 text-slate-500 hover:bg-white border border-blue-nice"
-          @click="deleteOpen = !deleteOpen"
-        />
+          @click="deleteOpen = !deleteOpen" />
       </div>
     </template>
   </UModal>
@@ -398,18 +331,10 @@ async function deleteField(fieldId) {
 
         <div class="flex flex-col gap-2">
           <label class="text-xs">نوع فیلد</label>
-          <USelect
-            v-model="editForm.type"
-            :items="fieldTypes"
-            option-attribute="label"
-            value-attribute="value"
-          />
+          <USelect v-model="editForm.type" :items="fieldTypes" option-attribute="label" value-attribute="value" />
         </div>
 
-        <div
-          v-if="['select', 'multiSelect'].includes(editForm.type)"
-          class="flex flex-col gap-2"
-        >
+        <div v-if="['select', 'multiSelect'].includes(editForm.type)" class="flex flex-col gap-2">
           <label class="text-xs">گزینه‌ها (با ویرگول جدا کنید)</label>
           <UInput v-model="editForm.optionsString" />
         </div>
@@ -418,17 +343,12 @@ async function deleteField(fieldId) {
 
     <template #footer="{ close }">
       <div class="flex justify-between items-center w-full">
-        <UButton
-          @click="submitEditField"
-          class="bg-blue-light tracking-tighter px-4 py-2 text-blue font-semibold hover:bg-white border border-blue-nice"
-        >
+        <UButton @click="submitEditField"
+          class="bg-blue-light tracking-tighter px-4 py-2 text-blue font-semibold hover:bg-white border border-blue-nice">
           ذخیره تغییرات
         </UButton>
-        <UButton
-          @click="editOpen = !editOpen"
-          variant="outline"
-          class="bg-white px-4 py-2 !text-slate-400 hover:bg-white border !border-blue-nice"
-        >
+        <UButton @click="editOpen = !editOpen" variant="outline"
+          class="bg-white px-4 py-2 !text-slate-400 hover:bg-white border !border-blue-nice">
           انصراف
         </UButton>
       </div>
@@ -454,19 +374,13 @@ async function deleteField(fieldId) {
 
     <template #footer="{ close }">
       <div class="flex justify-between items-center w-full">
-        <UButton
-          @click="submitEditContentType"
-          class="bg-blue-light tracking-tighter px-4 py-2 text-blue font-semibold hover:bg-white border border-blue-nice"
-        >
+        <UButton @click="submitEditContentType"
+          class="bg-blue-light tracking-tighter px-4 py-2 text-blue font-semibold hover:bg-white border border-blue-nice">
           ذخیره تغییرات
         </UButton>
-        <UButton
-          label="انصراف"
-          color="neutral"
-          variant="outline"
+        <UButton label="انصراف" color="neutral" variant="outline"
           class="bg-white px-4 py-2 text-slate-500 hover:bg-white border border-blue-nice"
-          @click="contentTypeEditOpen =!contentTypeEditOpen"
-        />
+          @click="contentTypeEditOpen = !contentTypeEditOpen" />
       </div>
     </template>
   </UModal>

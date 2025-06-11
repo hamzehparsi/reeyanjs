@@ -1,5 +1,8 @@
 <script setup>
 import { reactive, watch, toRefs } from "vue";
+import ShortTextInput from "@/components/ShortTextInput.vue";
+import RichTextEditor from "@/components/RichTextEditor.vue";
+import TextareaInput from "@/components/TextareaInput.vue";
 
 const props = defineProps({
   fields: {
@@ -31,23 +34,22 @@ function handleSubmit() {
 <template>
   <form @submit.prevent="handleSubmit">
     <div v-for="field in fields" :key="field.name" class="mb-4">
-      <label :for="field.name" class="block mb-1">{{
+      <label :for="field.name" class="block mb-2 text-xs">{{
         field.label || field.name
       }}</label>
 
-      <input
-        v-if="['text', 'shortText'].includes(field.type)"
-        type="text"
+      <ShortTextInput
+        v-if="field.type === 'shortText'"
         v-model="form[field.name]"
         :id="field.name"
-        class="border p-2 w-full"
+        :placeholder="field.label || field.name"
       />
 
-      <textarea
+      <TextareaInput
         v-else-if="field.type === 'longText'"
         v-model="form[field.name]"
         :id="field.name"
-        class="border p-2 w-full h-40"
+        :placeholder="field.label || field.name"
       />
       <input
         v-else-if="field.type === 'number'"
@@ -80,6 +82,10 @@ function handleSubmit() {
           {{ option.label }}
         </option>
       </select>
+
+      <client-only v-else-if="field.type === 'richText'">
+        <RichTextEditor v-model="form[field.name]" />
+      </client-only>
 
       <div v-else>
         <em>نوع فیلد پشتیبانی نمی‌شود: {{ field.type }}</em>

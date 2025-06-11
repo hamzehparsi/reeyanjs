@@ -8,6 +8,7 @@ const FieldSchema = new mongoose.Schema({
     enum: [
       "shortText",
       "longText",
+      "richText",
       "media",
       "tags",
       "boolean",

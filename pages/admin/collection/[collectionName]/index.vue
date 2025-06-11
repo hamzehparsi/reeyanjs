@@ -62,11 +62,11 @@ const { data: items } = await useFetch(`/api/collection/${collectionName}`);
       <div v-if="data" class="text-sm text-blue-dark -mt-8 text-center flex flex-col items-center gap-3">
         <span class="text-xs">هنوز هیچ {{ data.displayName }} ثبت نشده است
         </span>
-        <button
+        <NuxtLink :to="`/admin/collection/${collectionName}/create`"
           class="bg-blue-light flex items-center gap-2 rounded-md text-sm tracking-tighter px-4 py-2 text-blue font-semibold hover:bg-white border transition-all duration-300 ease-in-out border-blue-nice">
           <IconsAddNote class="size-5" />
           <span class="pt-1 text-xs"> اضافه کردن {{ data.displayName }} </span>
-        </button>
+        </NuxtLink>
       </div>
     </div>
   </div>

@@ -2,7 +2,8 @@
 import mongoose from "mongoose";
 import ContentType from "~/server/models/ContentType";
 
-const modelCache = {};
+export const modelCache = {};
+
 export async function getModelByName(collectionName) {
   if (modelCache[collectionName]) {
     return modelCache[collectionName];

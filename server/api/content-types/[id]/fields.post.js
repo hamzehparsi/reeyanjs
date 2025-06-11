@@ -1,5 +1,7 @@
 // server/api/content-types/[id]/fields.post.js
 import ContentType from "~/server/models/ContentType";
+import mongoose from "mongoose";
+import { modelCache } from '~/server/utils/model-factory';
 
 export default defineEventHandler(async (event) => {
   const { id } = event.context.params;
@@ -25,6 +27,10 @@ export default defineEventHandler(async (event) => {
   });
 
   await contentType.save();
+
+  const collectionName = contentType.collectionName;
+  delete mongoose.models[collectionName];
+  delete modelCache[collectionName];
 
   return {
     message: "فیلد با موفقیت اضافه شد",

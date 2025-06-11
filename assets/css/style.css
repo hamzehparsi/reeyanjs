@@ -1,8 +1,11 @@
-@import url(fontiran.css); /* لینک فایلی که وظیفه بارگذاری فونت ها را برعهده دارد */
+@import url(fontiran.css);
+
+/* لینک فایلی که وظیفه بارگذاری فونت ها را برعهده دارد */
 body {
-  font-family: "Yekan Bakh FaNum"; 
+  font-family: "Yekan Bakh FaNum";
   margin: 0;
 }
+
 h1,
 h2,
 h3,
@@ -11,5 +14,10 @@ h5,
 h6,
 p,
 textarea {
-  font-family: "Yekan Bakh FaNum"; 
+  font-family: "Yekan Bakh FaNum";
+}
+
+.ql-toolbar.ql-snow {
+  background-color: white;
+  border-radius: 10px 10px 0 0;
 }

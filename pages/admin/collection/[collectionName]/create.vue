@@ -20,14 +20,12 @@ async function submitHandler(data) {
       method: "POST",
       body: data,
     });
-
-    // موفقیت: هدایت به لیست مطالب آن کالکشن
     router.push(`/admin/collection/${collectionName}`);
   } catch (error) {
-    console.error("❌ خطا در ذخیره مطلب:", error);
-    // در صورت نیاز: نمایش پیغام خطا به کاربر
+    console.error("❌ خطا در ذخیره مطلب:", error.data.message);
   }
 }
+
 </script>
 
 <template>

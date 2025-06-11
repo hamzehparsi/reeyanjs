@@ -5,7 +5,6 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event);
 
   const { name, displayName } = body;
-  console.log(body);
   
   if (!name || !displayName) {
     throw createError({

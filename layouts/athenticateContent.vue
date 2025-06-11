@@ -19,7 +19,7 @@
             :to="`/admin/collection/${item.collectionName}`"
             :class="[
               'block hover:bg-slate-100 hover:text-slate-600 text-sm tracking-tighter w-full px-4 py-1.5 my-1 rounded-sm transition-all duration-300 ease-in-out',
-              route.path === `/admin/collection/${item.collectionName}`
+              route.path.startsWith(`/admin/collection/${item.collectionName}`)
                 ? 'bg-blue-light text-blue font-bold hover:!bg-blue-light hover:!text-blue'
                 : 'text-blue-dark',
             ]"

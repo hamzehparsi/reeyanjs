@@ -1,17 +1,21 @@
 <script setup>
 import { reactive, watch, toRefs } from "vue";
 import ShortTextInput from "@/components/ShortTextInput.vue";
-import RichTextEditor from "@/components/RichTextEditor.vue";
 import TextareaInput from "@/components/TextareaInput.vue";
+import QuillEditor from "@/components/QuillEditor.vue";
 
 const props = defineProps({
   fields: {
     type: Array,
     default: () => [],
   },
+  modelValue: {
+    type: String,
+    default: ''
+  }
 });
 
-const emit = defineEmits(["submit"]);
+const emit = defineEmits(["submit", "update:modelValue"]);
 
 const form = reactive({});
 
@@ -29,6 +33,17 @@ watch(
 function handleSubmit() {
   emit("submit", { ...form });
 }
+
+function handleModelValueUpdate(newValue) {
+  emit("update:modelValue", newValue);
+}
+
+watch(
+  () => props.modelValue,
+  (val) => {
+    // مقدار را به ویرایشگر ست کن
+  }
+)
 </script>
 
 <template>
@@ -84,7 +99,7 @@ function handleSubmit() {
       </select>
 
       <client-only v-else-if="field.type === 'richText'">
-        <RichTextEditor v-model="form[field.name]" />
+        <QuillEditor v-model="form[field.name]" />
       </client-only>
 
       <div v-else>

@@ -3,7 +3,7 @@ import { getModelByName } from '~/server/utils/model-factory'
 
 export default defineEventHandler(async (event) => {
   const { collectionName } = event.context.params
-  const body = await readBody(event)
+  const body = await readBody(event)  
   try {
     const Model = await getModelByName(collectionName)
     if (!Model) {

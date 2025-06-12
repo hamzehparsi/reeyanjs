@@ -24,7 +24,9 @@ const form = reactive({});
 // مقداردهی اولیه فیلدها
 watch(
   () => props.fields,
+
   (fields) => {
+    console.log('Fields in DynamicForm:', fields);
     fields.forEach((field) => {
       form[field.name] = field.type === 'boolean' ? false : "";
     });

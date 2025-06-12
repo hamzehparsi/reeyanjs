@@ -16,7 +16,6 @@ export async function getModelByName(collectionName) {
     return mongoose.models[collectionName];
   }
 
-  // ← تغییر اصلی این خطه
   const contentType = await ContentType.findOne({ collectionName });
 
   if (!contentType) {
@@ -29,26 +28,26 @@ export async function getModelByName(collectionName) {
 
   for (const field of fields) {
     switch (field.type) {
-      case 'text':
-      case 'textarea':
+      case "text":
+      case "textarea":
         schemaDefinition[field.name] = { type: String };
         break;
-      case 'number':
+      case "number":
         schemaDefinition[field.name] = { type: Number };
         break;
-      case 'date':
+      case "date":
         schemaDefinition[field.name] = { type: Date };
         break;
-      case 'select':
+      case "select":
         schemaDefinition[field.name] = { type: String };
         break;
-      case 'multiSelect':
+      case "multiSelect":
         schemaDefinition[field.name] = [{ type: String }];
         break;
-      case 'media':
-        schemaDefinition[field.name] = field.multiple 
-          ? [{ type: mongoose.Schema.Types.ObjectId, ref: 'Media' }] 
-          : { type: mongoose.Schema.Types.ObjectId, ref: 'Media' };
+      case "media":
+        schemaDefinition[field.name] = field.allowMultiple // تغییر به allowMultiple
+          ? [{ type: mongoose.Schema.Types.ObjectId, ref: "Media" }]
+          : { type: mongoose.Schema.Types.ObjectId, ref: "Media", required: false };
         break;
       default:
         schemaDefinition[field.name] = { type: String };
@@ -59,7 +58,7 @@ export async function getModelByName(collectionName) {
     timestamps: true,
   });
 
-  const Model = mongoose.models[collectionName] || mongoose.model(collectionName, schema);
+  const Model = mongoose.models[collectionName] || mongoose.model(collectionName, schema, collectionName);
   modelCache[collectionName] = Model;
 
   return Model;

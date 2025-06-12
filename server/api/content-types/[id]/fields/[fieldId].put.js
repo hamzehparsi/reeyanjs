@@ -37,9 +37,10 @@ export default defineEventHandler(async (event) => {
     field.name = body.name;
     field.label = body.label;
     field.type = body.type;
-    field.options = ["select", "multiSelect"].includes(body.type)
+    field.options = ["select", "multiSelect", "media"].includes(body.type)
       ? body.options || []
       : undefined;
+    field.allowMultiple = body.allowMultiple || false; // اضافه کردن allowMultiple
 
     await contentType.save();
 

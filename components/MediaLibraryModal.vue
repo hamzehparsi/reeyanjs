@@ -39,7 +39,7 @@ async function uploadFile() {
   formData.append('file', uploadedFile.value);
 
   try {
-    const response = await $fetch('/api/media/upload', { // این Endpoint باید در سمت سرور پیاده‌سازی شود
+    const response = await $fetch('/api/media', { // Endpoint صحیح برای آپلود
       method: 'POST',
       body: formData,
     });
@@ -59,10 +59,10 @@ async function uploadFile() {
 async function fetchMediaItems() {
   isLoading.value = true;
   try {
-    const response = await $fetch('/api/media/media', { // این Endpoint باید در سمت سرور پیاده‌سازی شود
+    const response = await $fetch('/api/media', { // Endpoint صحیح برای دریافت لیست
       method: 'GET',
     });
-    mediaItems.value = response.data || []; // فرض می‌کنیم response.data یک آرایه از فایل‌هاست
+    mediaItems.value = response.mediaItems || []; // فرض می‌کنیم response.mediaItems یک آرایه از فایل‌هاست
   } catch (error) {
     console.error('❌ خطا در دریافت فایل‌ها:', error);
     toast.add({ title: `خطا در دریافت فایل‌ها: ${error.data?.message || error.message}`, color: 'red' });
@@ -118,7 +118,14 @@ watch(() => props.isOpen, (newVal) => {
 </script>
 
 <template>
-  <UModal v-model="props.isOpen" @close="closeModal" :ui="{ width: 'sm:max-w-4xl' }">
+  <UModal
+    v-model="props.isOpen"
+    @close="closeModal"
+    :ui="{ width: 'sm:max-w-4xl' }"
+  >
+    <template #title>کتابخانه رسانه</template>
+    <template #description>بارگذاری یا انتخاب فایل‌های رسانه</template>
+
     <UCard :ui="{ ring: '', divide: 'divide-y divide-gray-100 dark:divide-gray-800' }">
       <template #header>
         <div class="flex items-center justify-between">
@@ -185,7 +192,7 @@ watch(() => props.isOpen, (newVal) => {
                 <div v-else class="w-full h-32 flex items-center justify-center bg-gray-100 dark:bg-gray-700">
                   <UIcon name="i-heroicons-document" class="w-16 h-16 text-gray-400" />
                 </div>
-                <div class="p-2 text-sm truncate">{{ media.name }}</div>
+                <div class="p-2 text-sm truncate">{{ media.filename }}</div>
                 <div v-if="isMediaSelected(media)"
                   class="absolute top-1 left-1 bg-blue-500 text-white rounded-full p-1 text-xs">
                   <UIcon name="i-heroicons-check" class="w-3 h-3" />

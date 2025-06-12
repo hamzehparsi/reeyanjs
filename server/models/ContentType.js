@@ -1,5 +1,6 @@
 // server/models/ContentType.js
 import mongoose from "mongoose";
+
 const FieldSchema = new mongoose.Schema({
   name: String, // مثلاً: title
   label: String, // مثلاً: عنوان
@@ -20,15 +21,18 @@ const FieldSchema = new mongoose.Schema({
     default: "shortText",
   },
   options: [String], // فقط برای select و multiSelect
+  allowMultiple: { // اصلاح به allowMultiple
+    type: Boolean,
+    default: false,
+  },
 });
 
 const ContentTypeSchema = new mongoose.Schema(
   {
     name: String,
     displayName: String,
-    collectionName: String, // articles (جدید!)
-
-    fields: [FieldSchema], // فیلدهای مدل اینجا ذخیره می‌شن
+    collectionName: String, // articles
+    fields: [FieldSchema],
   },
   { timestamps: true }
 );

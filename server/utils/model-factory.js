@@ -1,6 +1,7 @@
 // server/utils/model-factory.js
 import mongoose from "mongoose";
 import ContentType from "~/server/models/ContentType";
+import Media from "~/server/models/Media";
 
 export const modelCache = {};
 
@@ -41,8 +42,13 @@ export async function getModelByName(collectionName) {
       case 'select':
         schemaDefinition[field.name] = { type: String };
         break;
-      case 'multi-select':
+      case 'multiSelect':
         schemaDefinition[field.name] = [{ type: String }];
+        break;
+      case 'media':
+        schemaDefinition[field.name] = field.multiple 
+          ? [{ type: mongoose.Schema.Types.ObjectId, ref: 'Media' }] 
+          : { type: mongoose.Schema.Types.ObjectId, ref: 'Media' };
         break;
       default:
         schemaDefinition[field.name] = { type: String };

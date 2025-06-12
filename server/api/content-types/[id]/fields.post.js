@@ -1,4 +1,3 @@
-// server/api/content-types/[id]/fields.post.js
 import ContentType from "~/server/models/ContentType";
 import mongoose from "mongoose";
 import { modelCache } from '~/server/utils/model-factory';
@@ -6,7 +5,7 @@ import { modelCache } from '~/server/utils/model-factory';
 export default defineEventHandler(async (event) => {
   const { id } = event.context.params;
   const body = await readBody(event);
-
+  console.log('Request body:', body); // دیباگ درخواست ورودی
   const contentType = await ContentType.findById(id);
   if (!contentType) {
     throw createError({
@@ -24,6 +23,7 @@ export default defineEventHandler(async (event) => {
       : typeof body.options === "string"
       ? body.options.split("،").map((o) => o.trim())
       : [],
+    allowMultiple: body.allowMultiple || false, // اضافه کردن allowMultiple
   });
 
   await contentType.save();

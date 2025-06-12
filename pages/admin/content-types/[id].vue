@@ -22,6 +22,7 @@ const editForm = reactive({
   label: "",
   type: "",
   optionsString: "",
+  allowMultiple: false, // برای ویرایش
 });
 function confirmDelete(fieldId) {
   selectedFieldId.value = fieldId;
@@ -33,6 +34,7 @@ function openEditModal(field) {
   editForm.label = field.label;
   editForm.type = field.type;
   editForm.optionsString = (field.options || []).join(", ");
+  editForm.allowMultiple = field.allowMultiple || false;
   editOpen.value = true;
 }
 async function submitEditField() {
@@ -40,9 +42,10 @@ async function submitEditField() {
     name: editForm.name.trim(),
     label: editForm.label.trim(),
     type: editForm.type,
-    options: ["select", "multiSelect"].includes(editForm.type)
+    options: ["select", "multiSelect", "media"].includes(editForm.type)
       ? editForm.optionsString.split(",").map((o) => o.trim())
       : undefined,
+    allowMultiple: editForm.type === "media" ? editForm.allowMultiple : undefined,
   };
 
   await $fetch(
@@ -78,12 +81,12 @@ async function submitEditContentType() {
 const { data, pending, error, refresh } = await useFetch(
   `/api/content-types/${id}`
 );
-
 const formState = reactive({
   name: "",
   label: "",
   type: "shortText",
   optionsString: "",
+  allowMultiple: false, // برای انتخاب چند فایل
 });
 
 const fieldTypes = [
@@ -98,17 +101,17 @@ const fieldTypes = [
   { label: "انتخاب تکی", value: "select" },
   { label: "انتخاب چندتایی", value: "multiSelect" },
 ];
-
 async function submitField() {
   const payload = {
     name: formState.name.trim(),
     label: formState.label.trim(),
     type: formState.type,
-    options: ["select", "multiSelect"].includes(formState.type)
+    options: ["select", "multiSelect", "media"].includes(formState.type)
       ? formState.optionsString.split(",").map((o) => o.trim())
       : undefined,
+    allowMultiple: formState.type === "media" ? formState.allowMultiple : undefined,
   };
-
+  console.log('Payload being sent:', payload); // دیباگ payload
   await $fetch(`/api/content-types/${route.params.id}/fields`, {
     method: "POST",
     body: payload,
@@ -116,11 +119,11 @@ async function submitField() {
 
   open.value = false;
   refresh();
-
   formState.name = "";
   formState.label = "";
   formState.type = "shortText";
   formState.optionsString = "";
+  formState.allowMultiple = false;
 }
 
 definePageMeta({
@@ -253,6 +256,11 @@ async function deleteField(fieldId) {
           <UInput id="options" v-model="formState.optionsString" size="xl" variant="outline"
             placeholder="مثلاً: فعال, غیرفعال" class="rounded-lg placeholder:!text-xs placeholder:!text-teal-400" />
         </div>
+        <!-- تنظیمات فیلد مدیا -->
+        <div v-if="formState.type === 'media'" class="flex gap-2 flex-col">
+
+          <UCheckbox label="اجازه انتخاب چند فایل" id="allowMultiple" v-model="formState.allowMultiple" />
+        </div>
       </div>
     </template>
     <template #footer="{ close }">
@@ -337,6 +345,10 @@ async function deleteField(fieldId) {
         <div v-if="['select', 'multiSelect'].includes(editForm.type)" class="flex flex-col gap-2">
           <label class="text-xs">گزینه‌ها (با ویرگول جدا کنید)</label>
           <UInput v-model="editForm.optionsString" />
+        </div>
+        <div v-if="formState.type === 'media'" class="flex gap-2 flex-col">
+          <label class="text-xs text-right block mb-1" for="allowMultiple">اجازه انتخاب چند فایل</label>
+          <UCheckbox id="allowMultiple" v-model="formState.allowMultiple" />
         </div>
       </div>
     </template>

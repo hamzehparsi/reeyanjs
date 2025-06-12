@@ -82,12 +82,8 @@ watch(
         <BooleanSwitch class="my-4" v-else-if="field.type === 'boolean'" v-model="form[field.name]" :id="field.name"
           :label="field.label || field.name" :description="field.description || ''" />
 
-        <MediaUploadInput
-          v-else-if="field.type === 'media'"
-          v-model="form[field.name]"
-          :label="field.label || 'انتخاب فایل'"
-          :multiple="field.multiple || false"
-        />
+        <MediaUploadInput v-else-if="field.type === 'media'" v-model="form[field.name]"
+          :label="field.label || 'انتخاب فایل'" :multiple="field.allowMultiple || false" />
 
         <div v-else>
           <em>نوع فیلد پشتیبانی نمی‌شود: {{ field.type }}</em>

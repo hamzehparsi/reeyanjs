@@ -63,8 +63,7 @@ async function deleteContent() {
       <span>درج <span>{{ data.displayName }}</span></span>
     </NuxtLink>
   </div>
-  <div v-if="items.length > 0"
-    class="mt-4 bg-white rounded-xl px-7 py-4">
+  <div v-if="items.length > 0" class="mt-4 bg-white rounded-xl px-7 py-4">
     <div v-if="(collections.find((c) => c.name === collectionName)?.count ?? 0) > 0">
       <ul class="divide-y divide-gray-200">
         <li v-for="item in items" :key="item._id">
@@ -72,8 +71,10 @@ async function deleteContent() {
             <div>{{ item.title }}</div>
             <div class="flex items-center gap-2">
               <span>
-                <IconsEditIcon class=" size-7 p-1 rounded-lg text-blue-dark hover:bg-blue-light hover:text-blue transition-all
-                duration-300 ease-in-out" />
+                <NuxtLink :to="`/admin/collection/${collectionName}/${item._id}/edit`">
+                  <IconsEditIcon class="size-7 p-1 rounded-lg text-blue-dark hover:bg-blue-light hover:text-blue transition-all
+    duration-300 ease-in-out" />
+                </NuxtLink>
               </span>
               <span>
                 <IconsDeleteIcon @click="confirmDelete(item._id)" class=" size-7 p-1 rounded-lg text-blue-dark hover:bg-red-100 hover:text-red-500 transition-all

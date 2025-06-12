@@ -178,7 +178,7 @@ async function deleteField(fieldId) {
           <div class="divide-y-2 divide-blue-light">
             <div v-for="(field, index) in contentType.fields" :key="index">
               <div class="py-2 my-2 flex justify-between items-center">
-                <div>{{ field.name }} - {{ field.type }}</div>
+                <div>{{ field.label }} - {{ field.type }}</div>
                 <div class="flex items-center gap-2">
                   <span @click="openEditModal(field)">
                     <IconsEditIcon
@@ -246,7 +246,7 @@ async function deleteField(fieldId) {
         <!-- type -->
         <div class="flex gap-2 flex-col">
           <label class="text-xs text-right block mb-1" for="type">نوع فیلد</label>
-          <USelect id="type" v-model="formState.type" size="xl" :items="fieldTypes" option-attribute="label"
+          <USelect id="type" v-model="formState.type" size="lg" :items="fieldTypes" option-attribute="label"
             value-attribute="value" class="rounded-lg" />
         </div>
 

@@ -1,32 +1,25 @@
 <template>
   <UInput
     :id="id"
-    v-model="inputValue"
+    :model-value="modelValue"
+    @update:model-value="updateValue"
     type="text"
-    size="lg"
+    size="xl"
     :placeholder="placeholder"
     class="w-full focus:ring-2 focus:ring-blue-300 transition"
   />
 </template>
 
 <script setup>
-import { computed } from "vue";
-
 const props = defineProps({
-  modelValue: String,
+  modelValue: [String, Number, Boolean, Array, Object],
   id: String,
   placeholder: String
 });
-const emit = defineEmits(["update:modelValue"]);
 
-const inputValue = computed({
-  get: () => props.modelValue,
-  set: (val) => emit("update:modelValue", val)
-});
-</script>
+const emit = defineEmits(['update:modelValue']);
 
-<script>
-export default {
-  emits: ["update:modelValue"]
-}
+const updateValue = (value) => {
+  emit('update:modelValue', value);
+};
 </script>

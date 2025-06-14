@@ -1,6 +1,5 @@
 <script setup>
 import { ref, watch } from 'vue';
-// import { useToast } from 'vue-toastification';
 
 const props = defineProps({
   modelValue: { type: [String, Array, Object], default: null },
@@ -12,29 +11,50 @@ const emit = defineEmits(['update:modelValue']);
 
 const showMediaControls = ref(false);
 const selectedForSelection = ref([]);
-const selectedMedia = ref([]); // برای نگه داشتن اطلاعات کامل رسانه‌ها
+const selectedMedia = ref([]);
 const activeTab = ref('upload');
 const uploadedFile = ref(null);
 const isLoading = ref(false);
 const mediaItems = ref([]);
-const toast = useToast();
+// const toast = useToast();
 
-// همگام‌سازی selectedMedia با selectedForSelection
-watch(() => selectedForSelection.value, (newSelection) => {
-  selectedMedia.value = newSelection; // نگه داشتن اطلاعات کامل برای پیش‌نمایش
-}, { immediate: true });
-
-// همگام‌سازی با v-model
-watch(() => props.modelValue, (newValue) => {
-  if (props.multiple && Array.isArray(newValue)) {
-    selectedForSelection.value = newValue.map(id => mediaItems.value.find(item => item._id === id) || {});
-  } else if (!props.multiple && newValue) {
-    selectedForSelection.value = [mediaItems.value.find(item => item._id === newValue) || {}];
-  } else {
-    selectedForSelection.value = [];
+// بارگذاری اولیه رسانه‌ها
+async function fetchMediaItems() {
+  isLoading.value = true;
+  try {
+    const response = await $fetch('/api/media', { method: 'GET' });
+    mediaItems.value = response.mediaItems || [];
+  } catch (error) {
+    console.error('❌ خطا در دریافت فایل‌ها:', error);
+    // toast.add({ title: `خطا در دریافت فایل‌ها: ${error.data?.message || error.message}`, color: 'red' });
+  } finally {
+    isLoading.value = false;
   }
-}, { immediate: true });
+}
 
+// همگام‌سازی modelValue با selectedForSelection
+watch(
+  () => [props.modelValue, mediaItems.value],
+  ([newValue, mediaItems]) => {
+    if (!mediaItems || mediaItems.length === 0) return; // منتظر بارگذاری mediaItems
+
+    if (props.multiple && Array.isArray(newValue)) {
+      selectedForSelection.value = newValue
+        .map(id => mediaItems.find(item => item._id === id))
+        .filter(item => item !== undefined); // فقط موارد معتبر
+    } else if (!props.multiple && newValue) {
+      const media = mediaItems.find(item => item._id === newValue);
+      selectedForSelection.value = media ? [media] : [];
+    } else {
+      selectedForSelection.value = [];
+    }
+    selectedMedia.value = selectedForSelection.value; // همگام‌سازی selectedMedia
+    console.log('watch: selectedForSelection', selectedForSelection.value);
+  },
+  { immediate: true, deep: true }
+);
+
+// آپلود فایل
 async function handleFileUpload(event) {
   if (props.multiple) {
     uploadedFile.value = Array.from(event.target.files);
@@ -47,7 +67,7 @@ async function handleFileUpload(event) {
 
 async function uploadFile() {
   if (!uploadedFile.value || (Array.isArray(uploadedFile.value) && uploadedFile.value.length === 0)) {
-    toast.add({ title: 'فایلی انتخاب نشده است', color: 'red' });
+    // toast.add({ title: 'فایلی انتخاب نشده است', color: 'red' });
     return;
   }
 
@@ -66,7 +86,7 @@ async function uploadFile() {
       uploadedMediaResponses.push(response.media);
     }
 
-    toast.add({ title: 'فایل(ها) با موفقیت آپلود شد', color: 'green' });
+    // toast.add({ title: 'فایل(ها) با موفقیت آپلود شد', color: 'green' });
     uploadedFile.value = null;
 
     if (props.multiple) {
@@ -74,30 +94,17 @@ async function uploadFile() {
     } else {
       selectedForSelection.value = [uploadedMediaResponses[0]];
     }
-    console.log('uploadFile: selectedForSelection after upload', selectedForSelection.value);
+    selectedMedia.value = selectedForSelection.value;
+    console.log('uploadFile: selectedForSelection', selectedForSelection.value);
+
+    // ارسال فوری مقدار
+    confirmSelection();
 
     await fetchMediaItems();
     activeTab.value = 'library';
-
-    if (!props.multiple) {
-      confirmSelection();
-    }
   } catch (error) {
     console.error('❌ خطا در آپلود فایل:', error);
-    toast.add({ title: `خطا در آپلود: ${error.data?.message || error.message}`, color: 'red' });
-  } finally {
-    isLoading.value = false;
-  }
-}
-
-async function fetchMediaItems() {
-  isLoading.value = true;
-  try {
-    const response = await $fetch('/api/media', { method: 'GET' });
-    mediaItems.value = response.mediaItems || [];
-  } catch (error) {
-    console.error('❌ خطا در دریافت فایل‌ها:', error);
-    toast.add({ title: `خطا در دریافت فایل‌ها: ${error.data?.message || error.message}`, color: 'red' });
+    // toast.add({ title: `خطا در آپلود: ${error.data?.message || error.message}`, color: 'red' });
   } finally {
     isLoading.value = false;
   }
@@ -111,34 +118,42 @@ function selectMedia(media) {
     } else {
       selectedForSelection.value.splice(index, 1);
     }
+    selectedMedia.value = selectedForSelection.value;
+    // ارسال فوری مقدار برای گالری
+    const value = selectedForSelection.value.map(item => item._id).filter(id => id);
+    console.log('selectMedia: emitting value for gallery', value); // لاگ برای دیباگ
+    emit('update:modelValue', value);
   } else {
     selectedForSelection.value = [media];
+    selectedMedia.value = [media];
+    console.log('selectMedia: emitting single media _id', media._id);
     emit('update:modelValue', media._id);
     showMediaControls.value = false;
   }
-  console.log('selectMedia: selectedForSelection', selectedForSelection.value);
 }
 
 function isMediaSelected(media) {
   return selectedForSelection.value.some(item => item._id === media._id);
 }
-
 function confirmSelection() {
   const value = props.multiple
-    ? selectedForSelection.value.map((item) => item._id)
-    : selectedForSelection.value[0]?.id || null;
-  console.log("confirmSelection: emitting", value);
-  emit("update:modelValue", value);
+    ? selectedForSelection.value
+        .map(item => item._id)
+        .filter(id => id) // فقط _idهای معتبر
+    : selectedForSelection.value[0]?._id || null;
+  console.log('confirmSelection: emitting value', value); // لاگ برای دیباگ
+  emit('update:modelValue', value);
   showMediaControls.value = false;
-  selectedForSelection.value = [];
 }
 
 function removeSelectedMedia(index) {
   if (!props.multiple) {
-    selectedMedia.value = null;
+    selectedMedia.value = [];
+    selectedForSelection.value = [];
     emit('update:modelValue', null);
   } else if (Array.isArray(selectedMedia.value)) {
     selectedMedia.value.splice(index, 1);
+    selectedForSelection.value = selectedMedia.value;
     emit('update:modelValue', selectedMedia.value.map(item => item._id));
   }
 }
@@ -150,21 +165,44 @@ onMounted(() => {
 
 <template>
   <div>
-    <button type="button" @click="showMediaControls = !showMediaControls"
-      class="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors">
+    <button
+      type="button"
+      @click="showMediaControls = !showMediaControls"
+      class="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors"
+    >
       {{ label }}
     </button>
 
     <div v-if="selectedMedia.length && props.multiple" class="mt-2 grid grid-cols-3 gap-2">
-      <div v-for="(media, index) in selectedMedia" :key="media._id || index" class="relative border rounded-md p-1 flex flex-col items-center">
-        <img v-if="media.mimeType && media.mimeType.startsWith('image/')" :src="media.url" class="w-20 h-20 object-cover rounded-md mb-1" alt="Selected media" />
+      <div
+        v-for="(media, index) in selectedMedia"
+        :key="media._id || index"
+        class="relative border rounded-md p-1 flex flex-col items-center"
+      >
+        <img
+          v-if="media.mimeType && media.mimeType.startsWith('image/')"
+          :src="media.url"
+          class="w-20 h-20 object-cover rounded-md mb-1"
+          alt="Selected media"
+        />
         <span v-else class="text-xs text-center break-all">{{ media.filename }}</span>
-        <button type="button" @click="removeSelectedMedia(index)" class="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 text-xs leading-none">×</button>
+        <button
+          type="button"
+          @click="removeSelectedMedia(index)"
+          class="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 text-xs leading-none"
+        >
+          ×
+        </button>
       </div>
     </div>
     <div v-else-if="selectedMedia.length && !props.multiple" class="mt-2 flex items-center space-x-2">
       <template v-if="selectedMedia[0]?.url">
-        <img v-if="selectedMedia[0].mimeType && selectedMedia[0].mimeType.startsWith('image/')" :src="selectedMedia[0].url" class="w-16 h-16 object-cover rounded-md" alt="Selected media" />
+        <img
+          v-if="selectedMedia[0].mimeType && selectedMedia[0].mimeType.startsWith('image/')"
+          :src="selectedMedia[0].url"
+          class="w-16 h-16 object-cover rounded-md"
+          alt="Selected media"
+        />
         <span v-else>{{ selectedMedia[0].filename }}</span>
         <button type="button" @click="removeSelectedMedia(0)" class="text-red-500 text-sm">حذف</button>
       </template>
@@ -196,13 +234,36 @@ onMounted(() => {
         <div class="w-3/4 p-4">
           <div v-if="activeTab === 'upload'">
             <h4 class="text-lg font-medium mb-4">بارگذاری فایل جدید</h4>
-            <div class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 text-center cursor-pointer hover:border-blue-500 transition-colors"
-              @click="$refs.fileInput.click()">
-              <input type="file" ref="fileInput" @change="handleFileUpload" :multiple="multiple" class="hidden" />
-              <p v-if="uploadedFile && !Array.isArray(uploadedFile)" class="mt-2 text-sm text-gray-700 dark:text-gray-300">انتخاب شده: {{ uploadedFile.name }}</p>
-              <p v-else-if="uploadedFile && Array.isArray(uploadedFile)" class="mt-2 text-sm text-gray-700 dark:text-gray-300">انتخاب شده: {{ uploadedFile.length }} فایل</p>
+            <div
+              class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 text-center cursor-pointer hover:border-blue-500 transition-colors"
+              @click="$refs.fileInput.click()"
+            >
+              <input
+                type="file"
+                ref="fileInput"
+                @change="handleFileUpload"
+                :multiple="multiple"
+                class="hidden"
+              />
+              <p
+                v-if="uploadedFile && !Array.isArray(uploadedFile)"
+                class="mt-2 text-sm text-gray-700 dark:text-gray-300"
+              >
+                انتخاب شده: {{ uploadedFile.name }}
+              </p>
+              <p
+                v-else-if="uploadedFile && Array.isArray(uploadedFile)"
+                class="mt-2 text-sm text-gray-700 dark:text-gray-300"
+              >
+                انتخاب شده: {{ uploadedFile.length }} فایل
+              </p>
             </div>
-            <UButton class="mt-4" @click="uploadFile" :loading="isLoading" :disabled="!uploadedFile || (Array.isArray(uploadedFile) && uploadedFile.length === 0) || isLoading">
+            <UButton
+              class="mt-4"
+              @click="uploadFile"
+              :loading="isLoading"
+              :disabled="!uploadedFile || (Array.isArray(uploadedFile) && uploadedFile.length === 0) || isLoading"
+            >
               آپلود
             </UButton>
           </div>
@@ -215,14 +276,30 @@ onMounted(() => {
               <p>هیچ فایلی یافت نشد.</p>
             </div>
             <div v-else class="grid grid-cols-3 gap-4">
-              <div v-for="media in mediaItems" :key="media._id" class="relative border rounded-lg overflow-hidden cursor-pointer"
-                :class="{ 'border-blue-500 ring-2 ring-blue-500': isMediaSelected(media) }" @click="selectMedia(media)">
-                <img v-if="media.mimeType && media.mimeType.startsWith('image/')" :src="media.url" class="w-full h-32 object-cover" alt="Media item" />
-                <div v-else class="w-full h-32 flex items-center justify-center bg-gray-100 dark:bg-gray-700">
+              <div
+                v-for="media in mediaItems"
+                :key="media._id"
+                class="relative border rounded-lg overflow-hidden cursor-pointer"
+                :class="{ 'border-blue-500 ring-2 ring-blue-500': isMediaSelected(media) }"
+                @click="selectMedia(media)"
+              >
+                <img
+                  v-if="media.mimeType && media.mimeType.startsWith('image/')"
+                  :src="media.url"
+                  class="w-full h-32 object-cover"
+                  alt="Media item"
+                />
+                <div
+                  v-else
+                  class="w-full h-32 flex items-center justify-center bg-gray-100 dark:bg-gray-700"
+                >
                   <UIcon name="i-heroicons-document" class="w-16 h-16 text-gray-400" />
                 </div>
                 <div class="p-2 text-sm truncate">{{ media.filename }}</div>
-                <div v-if="isMediaSelected(media)" class="absolute top-1 left-1 bg-blue-500 text-white rounded-full p-1 text-xs">
+                <div
+                  v-if="isMediaSelected(media)"
+                  class="absolute top-1 left-1 bg-blue-500 text-white rounded-full p-1 text-xs"
+                >
                   <UIcon name="i-heroicons-check" class="w-3 h-3" />
                 </div>
               </div>

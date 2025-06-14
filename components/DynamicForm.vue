@@ -54,15 +54,14 @@ function getEmptyValueForType(type, allowMultiple = false) {
 }
 
 function handleSubmit() {
-  // پاکسازی داده‌های null/undefined
   const cleanedData = {};
   Object.keys(formData.value).forEach(key => {
     if (formData.value[key] !== null && formData.value[key] !== undefined) {
       cleanedData[key] = formData.value[key];
     }
   });
-  
-  emit("submit", cleanedData);
+  console.log('handleSubmit: cleanedData', cleanedData); // لاگ برای دیباگ
+  emit('submit', cleanedData);
 }
 
 // نوع input برای فیلدهای ساده

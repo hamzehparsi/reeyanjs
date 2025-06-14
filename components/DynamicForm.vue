@@ -18,27 +18,24 @@ const props = defineProps({
 
 const emit = defineEmits(["submit", "update:modelValue"]);
 
-// مدیریت فرم با reactive
 const formData = ref({});
 
-// مقداردهی اولیه هوشمند
+// مقداردهی اولیه فرم
 watch(() => [props.fields, props.initialValues], ([fields, initialValues]) => {
   if (!fields) return;
 
   const newFormData = {};
   fields.forEach((field) => {
-    // اولویت‌ها: مقدار اولیه → مقدار پیش‌فرض → مقدار خالی
-    newFormData[field.name] = initialValues[field.name] !== undefined 
+    newFormData[field.name] = initialValues[field.name] !== undefined
       ? initialValues[field.name]
       : field.defaultValue !== undefined
         ? field.defaultValue
         : getEmptyValueForType(field.type, field.allowMultiple);
   });
-  
+
   formData.value = newFormData;
 }, { immediate: true, deep: true });
 
-// تابع کمکی برای مقدار خالی بر اساس نوع فیلد
 function getEmptyValueForType(type, allowMultiple = false) {
   const typeMap = {
     shortText: '',
@@ -55,16 +52,28 @@ function getEmptyValueForType(type, allowMultiple = false) {
 
 function handleSubmit() {
   const cleanedData = {};
+
   Object.keys(formData.value).forEach(key => {
-    if (formData.value[key] !== null && formData.value[key] !== undefined) {
-      cleanedData[key] = formData.value[key];
+    const val = formData.value[key];
+    const field = props.fields.find(f => f.name === key);
+
+    if (field?.type === 'media') {
+      if (field.allowMultiple && !Array.isArray(val)) {
+        cleanedData[key] = [];
+      } else if (!field.allowMultiple && val === '') {
+        cleanedData[key] = null;
+      } else {
+        cleanedData[key] = val;
+      }
+    } else if (val !== null && val !== undefined) {
+      cleanedData[key] = val;
     }
   });
-  console.log('handleSubmit: cleanedData', cleanedData); // لاگ برای دیباگ
+
+  console.log('✅ handleSubmit: cleanedData', cleanedData);
   emit('submit', cleanedData);
 }
 
-// نوع input برای فیلدهای ساده
 const inputTypeMap = {
   number: 'number',
   date: 'date',
@@ -90,7 +99,7 @@ const inputTypeMap = {
           <span v-if="field.required" class="text-red-500">*</span>
         </label>
 
-        <!-- فیلدهای متنی کوتاه -->
+        <!-- فیلد متنی کوتاه -->
         <ShortTextInput
           v-if="field.type === 'shortText'"
           v-model="formData[field.name]"
@@ -99,7 +108,7 @@ const inputTypeMap = {
           :required="field.required"
         />
 
-        <!-- فیلدهای متنی بلند -->
+        <!-- فیلد متنی بلند -->
         <TextareaInput
           v-else-if="field.type === 'longText'"
           v-model="formData[field.name]"
@@ -109,7 +118,7 @@ const inputTypeMap = {
           :rows="field.rows || 4"
         />
 
-        <!-- فیلدهای عددی -->
+        <!-- عدد -->
         <input
           v-else-if="field.type === 'number'"
           v-model.number="formData[field.name]"
@@ -120,7 +129,7 @@ const inputTypeMap = {
           class="border border-gray-300 rounded-lg p-2.5 w-full focus:ring-blue-500 focus:border-blue-500"
         />
 
-        <!-- فیلدهای تاریخ -->
+        <!-- تاریخ -->
         <input
           v-else-if="field.type === 'date'"
           v-model="formData[field.name]"
@@ -130,7 +139,7 @@ const inputTypeMap = {
           class="border border-gray-300 rounded-lg p-2.5 w-full focus:ring-blue-500 focus:border-blue-500"
         />
 
-        <!-- فیلدهای انتخابی -->
+        <!-- لیست انتخابی -->
         <select
           v-else-if="field.type === 'select'"
           v-model="formData[field.name]"
@@ -150,7 +159,7 @@ const inputTypeMap = {
           </option>
         </select>
 
-        <!-- ویرایشگر پیشرفته -->
+        <!-- ویرایشگر متن غنی -->
         <client-only v-else-if="field.type === 'richText'">
           <QuillEditor 
             v-model="formData[field.name]" 
@@ -168,7 +177,7 @@ const inputTypeMap = {
           class="my-4"
         />
 
-        <!-- آپلود فایل -->
+        <!-- ورودی رسانه -->
         <MediaUploadInput
           v-else-if="field.type === 'media'"
           v-model="formData[field.name]"
@@ -177,12 +186,12 @@ const inputTypeMap = {
           :required="field.required"
         />
 
-        <!-- پیام برای انواع نامعتبر -->
+        <!-- نوع نامعتبر -->
         <div v-else class="text-red-500 text-sm">
           نوع فیلد پشتیبانی نمی‌شود: {{ field.type }}
         </div>
 
-        <!-- توضیحات فیلد -->
+        <!-- توضیحات -->
         <p v-if="field.description" class="mt-1 text-sm text-gray-500">
           {{ field.description }}
         </p>

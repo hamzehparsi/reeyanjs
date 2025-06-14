@@ -1,3 +1,4 @@
+<!-- pages\admin\collection\[collectionName]\[id]\edit.vue -->
 <script setup>
 const route = useRoute()
 const collectionName = route.params.collectionName
@@ -36,7 +37,7 @@ watchEffect(() => {
     const values = {}
     contentType.value.fields.forEach(field => {
       // مقداردهی با اولویت: داده موجود → مقدار پیش‌فرض → مقدار خالی
-      values[field.name] = existingData.value[field.name] !== undefined 
+      values[field.name] = existingData.value[field.name] !== undefined
         ? existingData.value[field.name]
         : field.defaultValue !== undefined
           ? field.defaultValue
@@ -48,16 +49,27 @@ watchEffect(() => {
     console.log('مقادیر اولیه:', initialValues.value) // برای دیباگ
   }
 })
+async function handleFormSubmit(formData) {
+  try {
+    const response = await $fetch(`/api/entries/${collectionName}/${id}`, {
+      method: 'PUT',
+      body: formData
+    });
+    navigateTo(`/admin/collection/${collectionName}`)
+    console.log("ویرایش با موفقیت انجام شد", response);
+    // شاید بخوای ریدایرکت کنی:
+    // navigateTo(`/admin/collection/${collectionName}`);
+  } catch (error) {
+    console.error("خطا در ذخیره‌سازی:", error);
+  }
+}
+
 </script>
 
 <template>
   <div>
-    <DynamicForm
-      v-if="Object.keys(initialValues).length > 0 && contentType?.fields"
-      :fields="contentType.fields"
-      :initial-values="initialValues"
-      submit-text="ذخیره تغییرات"
-    />
+    <DynamicForm v-if="Object.keys(initialValues).length > 0 && contentType?.fields" :fields="contentType.fields"
+      :initial-values="initialValues" submit-text="ذخیره تغییرات" @submit="handleFormSubmit" />
     <div v-else class="text-center py-8">
       در حال بارگذاری فرم...
     </div>

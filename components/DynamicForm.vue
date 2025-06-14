@@ -1,4 +1,8 @@
 <script setup>
+import dayjs from 'dayjs'
+import jalaliday from 'jalaliday'
+dayjs.extend(jalaliday)
+
 const props = defineProps({
   fields: {
     type: Array,
@@ -14,27 +18,27 @@ const props = defineProps({
     type: String,
     default: 'ذخیره'
   }
-});
+})
 
-const emit = defineEmits(["submit", "update:modelValue"]);
+const emit = defineEmits(["submit", "update:modelValue"])
 
-const formData = ref({});
+const formData = ref({})
 
 // مقداردهی اولیه فرم
 watch(() => [props.fields, props.initialValues], ([fields, initialValues]) => {
-  if (!fields) return;
+  if (!fields) return
 
-  const newFormData = {};
+  const newFormData = {}
   fields.forEach((field) => {
     newFormData[field.name] = initialValues[field.name] !== undefined
       ? initialValues[field.name]
       : field.defaultValue !== undefined
         ? field.defaultValue
-        : getEmptyValueForType(field.type, field.allowMultiple);
-  });
+        : getEmptyValueForType(field.type, field.allowMultiple)
+  })
 
-  formData.value = newFormData;
-}, { immediate: true, deep: true });
+  formData.value = newFormData
+}, { immediate: true, deep: true })
 
 function getEmptyValueForType(type, allowMultiple = false) {
   const typeMap = {
@@ -46,53 +50,48 @@ function getEmptyValueForType(type, allowMultiple = false) {
     richText: '',
     boolean: false,
     media: allowMultiple ? [] : null
-  };
-  return typeMap[type] ?? '';
+  }
+  return typeMap[type] ?? ''
 }
 
 function handleSubmit() {
-  const cleanedData = {};
+  const cleanedData = {}
 
-  Object.keys(formData.value).forEach(key => {
-    const val = formData.value[key];
-    const field = props.fields.find(f => f.name === key);
+  props.fields.forEach(field => {
+    const key = field.name
+    const val = formData.value[key]
 
-    if (field?.type === 'media') {
-      if (field.allowMultiple && !Array.isArray(val)) {
-        cleanedData[key] = [];
-      } else if (!field.allowMultiple && val === '') {
-        cleanedData[key] = null;
+    if (val !== null && val !== undefined && val !== '') {
+      if (field.type === 'date') {
+        const m = dayjs(val, { jalali: true })
+        if (m.isValid()) {
+          cleanedData[key] = m.toDate()
+        }
+      } else if (field.type === 'number') {
+        cleanedData[key] = Number(val)
       } else {
-        cleanedData[key] = val;
+        cleanedData[key] = val
       }
-    } else if (val !== null && val !== undefined) {
-      cleanedData[key] = val;
     }
-  });
+  })
 
-  console.log('✅ handleSubmit: cleanedData', cleanedData);
-  emit('submit', cleanedData);
+  console.log('✅ Prepared payload:', cleanedData)
+  emit('submit', cleanedData)
 }
-
-const inputTypeMap = {
-  number: 'number',
-  date: 'date',
-  default: 'text'
-};
 </script>
 
 <template>
   <div class="bg-white p-7 rounded-lg">
     <form @submit.prevent="handleSubmit">
-      <div 
-        v-for="field in fields" 
-        :key="field.name" 
+      <div
+        v-for="field in fields"
+        :key="field.name"
         class="mb-6"
-        :class="{'flex items-center': field.type === 'boolean'}"
+        :class="{ 'flex items-center': field.type === 'boolean' }"
       >
-        <label 
-          v-if="field.type !== 'boolean' && field.type !== 'media'" 
-          :for="field.name" 
+        <label
+          v-if="field.type !== 'boolean' && field.type !== 'media'"
+          :for="field.name"
           class="block mb-2 text-sm font-medium text-gray-700"
         >
           {{ field.label || field.name }}
@@ -123,21 +122,32 @@ const inputTypeMap = {
           v-else-if="field.type === 'number'"
           v-model.number="formData[field.name]"
           :id="field.name"
-          :type="inputTypeMap.number"
+          type="number"
           :placeholder="field.placeholder || field.label || field.name"
           :required="field.required"
           class="border border-gray-300 rounded-lg p-2.5 w-full focus:ring-blue-500 focus:border-blue-500"
         />
 
-        <!-- تاریخ -->
-        <input
-          v-else-if="field.type === 'date'"
-          v-model="formData[field.name]"
-          :id="field.name"
-          :type="inputTypeMap.date"
-          :required="field.required"
-          class="border border-gray-300 rounded-lg p-2.5 w-full focus:ring-blue-500 focus:border-blue-500"
-        />
+        <!-- تاریخ شمسی -->
+        <div v-else-if="field.type === 'date'" class="flex flex-col gap-2">
+          <UInput
+            variant="soft"
+            :id="field.name"
+            v-model="formData[field.name]"
+            size="xl"
+            class="custom-input"
+            :placeholder="field.placeholder || field.label || 'تاریخ'"
+          />
+          <date-picker
+            v-model="formData[field.name]"
+            type="datetime"
+            custom-input=".custom-input"
+            format="jYYYY/jMM/jDD HH:mm"
+            display-format="jYYYY/jMM/jDD HH:mm"
+            auto-submit
+            color="#2563eb"
+          />
+        </div>
 
         <!-- لیست انتخابی -->
         <select
@@ -150,9 +160,9 @@ const inputTypeMap = {
           <option disabled :value="getEmptyValueForType('select')">
             {{ field.placeholder || 'انتخاب کنید' }}
           </option>
-          <option 
-            v-for="option in field.options || []" 
-            :key="option.value" 
+          <option
+            v-for="option in field.options || []"
+            :key="option.value"
             :value="option.value"
           >
             {{ option.label }}
@@ -161,8 +171,8 @@ const inputTypeMap = {
 
         <!-- ویرایشگر متن غنی -->
         <client-only v-else-if="field.type === 'richText'">
-          <QuillEditor 
-            v-model="formData[field.name]" 
+          <QuillEditor
+            v-model="formData[field.name]"
             :placeholder="field.placeholder || field.label || field.name"
           />
         </client-only>
@@ -197,8 +207,8 @@ const inputTypeMap = {
         </p>
       </div>
 
-      <button 
-        type="submit" 
+      <button
+        type="submit"
         class="bg-blue-600 hover:bg-blue-700 text-white py-2.5 px-6 rounded-lg mt-4 transition-colors"
       >
         {{ submitText }}

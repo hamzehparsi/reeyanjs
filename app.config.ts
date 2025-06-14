@@ -18,7 +18,7 @@ export default defineAppConfig({
       slots: {
         root: "relative inline-flex items-center",
         base: [
-          "w-full rounded-md border-0 placeholder:text-xs focus:outline-none disabled:cursor-not-allowed disabled:opacity-75",
+          "w-full rounded-lg border-0 placeholder:text-xs focus:outline-none disabled:cursor-not-allowed disabled:opacity-75",
           "transition-colors",
         ],
         size: {

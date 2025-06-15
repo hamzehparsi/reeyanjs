@@ -9,6 +9,8 @@ export default defineNuxtConfig({
     MONGO_URI: process.env.MONGO_URI,
     JWT_SECRET: process.env.JWT_SECRET,
   },
+  plugins: ["~/plugins/dayjs.js"],
+
   css: ["~/assets/css/main.css", "~/assets/css/style.css"],
   app: {
     head: {

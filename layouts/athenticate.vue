@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-khakestari h-screen">
+  <div class="bg-khakestari">
     <FixedMenu />
     <div class="px-24 py-4">
       <!-- <div

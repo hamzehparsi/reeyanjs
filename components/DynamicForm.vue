@@ -1,218 +1,248 @@
 <script setup>
-import dayjs from 'dayjs'
-import jalaliday from 'jalaliday'
-dayjs.extend(jalaliday)
+import { ref, watch, computed } from "vue";
+import dayjs from "dayjs";
+import jalaliday from "jalaliday";
+dayjs.extend(jalaliday);
 
 const props = defineProps({
   fields: {
     type: Array,
     required: true,
     default: () => [],
-    validator: (value) => value.every(field => field.name && field.type)
+    validator: (value) => value.every((field) => field.name && field.type),
   },
   initialValues: {
     type: Object,
-    default: () => ({})
+    default: () => ({}),
   },
   submitText: {
     type: String,
-    default: 'ذخیره'
-  }
-})
+    default: "ذخیره",
+  },
+});
 
-const emit = defineEmits(["submit", "update:modelValue"])
+const emit = defineEmits(["submit", "update:modelValue"]);
 
-const formData = ref({})
+const formData = ref({});
 
-// مقداردهی اولیه فرم
-watch(() => [props.fields, props.initialValues], ([fields, initialValues]) => {
-  if (!fields) return
+const sortedFields = computed(() => {
+  return props.fields.slice().sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+});
 
-  const newFormData = {}
-  fields.forEach((field) => {
-    newFormData[field.name] = initialValues[field.name] !== undefined
-      ? initialValues[field.name]
-      : field.defaultValue !== undefined
-        ? field.defaultValue
-        : getEmptyValueForType(field.type, field.allowMultiple)
-  })
+const leftColumnFields = computed(() => {
+  return sortedFields.value.filter((f) =>
+    ["shortText", "longText", "richText", "media"].includes(f.type)
+  );
+});
 
-  formData.value = newFormData
-}, { immediate: true, deep: true })
+const rightColumnFields = computed(() => {
+  return sortedFields.value
+    .filter((f) => ["number", "boolean", "date", "select"].includes(f.type))
+    .sort((a, b) => {
+      // اول تاریخ، سپس boolean، سپس بقیه
+      const typeOrder = {
+        date: 1,
+        boolean: 2,
+        number: 3,
+        select: 4,
+      };
+      return (typeOrder[a.type] || 5) - (typeOrder[b.type] || 5);
+    });
+});
+
+watch(
+  () => [props.fields, props.initialValues],
+  ([fields, initialValues]) => {
+    if (!fields) return;
+
+    const newFormData = {};
+    fields.forEach((field) => {
+      newFormData[field.name] =
+        initialValues[field.name] !== undefined
+          ? initialValues[field.name]
+          : field.defaultValue !== undefined
+          ? field.defaultValue
+          : getEmptyValueForType(field.type, field.allowMultiple);
+    });
+
+    formData.value = newFormData;
+  },
+  { immediate: true, deep: true }
+);
 
 function getEmptyValueForType(type, allowMultiple = false) {
   const typeMap = {
-    shortText: '',
-    longText: '',
+    shortText: "",
+    longText: "",
     number: null,
-    date: '',
-    select: '',
-    richText: '',
+    date: "",
+    select: "",
+    richText: "",
     boolean: false,
-    media: allowMultiple ? [] : null
-  }
-  return typeMap[type] ?? ''
+    media: allowMultiple ? [] : null,
+  };
+  return typeMap[type] ?? "";
 }
 
 function handleSubmit() {
-  const cleanedData = {}
+  const cleanedData = {};
 
-  props.fields.forEach(field => {
-    const key = field.name
-    const val = formData.value[key]
+  props.fields.forEach((field) => {
+    const key = field.name;
+    const val = formData.value[key];
 
-    if (val !== null && val !== undefined && val !== '') {
-      if (field.type === 'date') {
-        const m = dayjs(val, { jalali: true })
+    if (val !== null && val !== undefined && val !== "") {
+      if (field.type === "date") {
+        const m = dayjs(val, { jalali: true });
         if (m.isValid()) {
-          cleanedData[key] = m.toDate()
+          cleanedData[key] = m.toDate();
         }
-      } else if (field.type === 'number') {
-        cleanedData[key] = Number(val)
+      } else if (field.type === "number") {
+        cleanedData[key] = Number(val);
       } else {
-        cleanedData[key] = val
+        cleanedData[key] = val;
       }
     }
-  })
+  });
 
-  console.log('✅ Prepared payload:', cleanedData)
-  emit('submit', cleanedData)
+  console.log("✅ Prepared payload:", cleanedData);
+  emit("submit", cleanedData);
 }
 </script>
 
 <template>
   <div class="bg-white p-7 rounded-lg">
-    <form @submit.prevent="handleSubmit">
-      <div
-        v-for="field in fields"
-        :key="field.name"
-        class="mb-6"
-        :class="{ 'flex items-center': field.type === 'boolean' }"
-      >
-        <label
-          v-if="field.type !== 'boolean' && field.type !== 'media'"
-          :for="field.name"
-          class="block mb-2 text-sm font-medium text-gray-700"
+    <form @submit.prevent="handleSubmit" class="flex items-start gap-6">
+      <!-- ستون اول -->
+      <div class="flex flex-col w-2/3 gap-2">
+        <div
+          v-for="field in leftColumnFields"
+          :key="field.name"
+          class="flex flex-col gap-2"
         >
-          {{ field.label || field.name }}
-          <span v-if="field.required" class="text-red-500">*</span>
-        </label>
-
-        <!-- فیلد متنی کوتاه -->
-        <ShortTextInput
-          v-if="field.type === 'shortText'"
-          v-model="formData[field.name]"
-          :id="field.name"
-          :placeholder="field.placeholder || field.label || field.name"
-          :required="field.required"
-        />
-
-        <!-- فیلد متنی بلند -->
-        <TextareaInput
-          v-else-if="field.type === 'longText'"
-          v-model="formData[field.name]"
-          :id="field.name"
-          :placeholder="field.placeholder || field.label || field.name"
-          :required="field.required"
-          :rows="field.rows || 4"
-        />
-
-        <!-- عدد -->
-        <input
-          v-else-if="field.type === 'number'"
-          v-model.number="formData[field.name]"
-          :id="field.name"
-          type="number"
-          :placeholder="field.placeholder || field.label || field.name"
-          :required="field.required"
-          class="border border-gray-300 rounded-lg p-2.5 w-full focus:ring-blue-500 focus:border-blue-500"
-        />
-
-        <!-- تاریخ شمسی -->
-        <div v-else-if="field.type === 'date'" class="flex flex-col gap-2">
-          <UInput
-            variant="soft"
-            :id="field.name"
-            v-model="formData[field.name]"
-            size="xl"
-            class="custom-input"
-            :placeholder="field.placeholder || field.label || 'تاریخ'"
-          />
-          <date-picker
-            v-model="formData[field.name]"
-            type="datetime"
-            custom-input=".custom-input"
-            format="jYYYY/jMM/jDD HH:mm"
-            display-format="jYYYY/jMM/jDD HH:mm"
-            auto-submit
-            color="#2563eb"
-          />
-        </div>
-
-        <!-- لیست انتخابی -->
-        <select
-          v-else-if="field.type === 'select'"
-          v-model="formData[field.name]"
-          :id="field.name"
-          :required="field.required"
-          class="border border-gray-300 rounded-lg p-2.5 w-full focus:ring-blue-500 focus:border-blue-500"
-        >
-          <option disabled :value="getEmptyValueForType('select')">
-            {{ field.placeholder || 'انتخاب کنید' }}
-          </option>
-          <option
-            v-for="option in field.options || []"
-            :key="option.value"
-            :value="option.value"
+          <label
+            v-if="field.type !== 'boolean' && field.type !== 'media'"
+            :for="field.name"
+            class="block text-sm font-medium text-gray-700"
           >
-            {{ option.label }}
-          </option>
-        </select>
+            {{ field.label || field.name }}
+            <span v-if="field.required" class="text-red-500">*</span>
+          </label>
 
-        <!-- ویرایشگر متن غنی -->
-        <client-only v-else-if="field.type === 'richText'">
-          <QuillEditor
+          <ShortTextInput
+            v-if="field.type === 'shortText'"
             v-model="formData[field.name]"
+            :id="field.name"
             :placeholder="field.placeholder || field.label || field.name"
+            :required="field.required"
           />
-        </client-only>
 
-        <!-- سوئیچ بله/خیر -->
-        <BooleanSwitch
-          v-else-if="field.type === 'boolean'"
-          v-model="formData[field.name]"
-          :id="field.name"
-          :label="field.label || field.name"
-          :description="field.description || ''"
-          class="my-4"
-        />
+          <TextareaInput
+            v-else-if="field.type === 'longText'"
+            v-model="formData[field.name]"
+            :id="field.name"
+            :placeholder="field.placeholder || field.label || field.name"
+            :required="field.required"
+            :rows="field.rows || 4"
+          />
 
-        <!-- ورودی رسانه -->
-        <MediaUploadInput
-          v-else-if="field.type === 'media'"
-          v-model="formData[field.name]"
-          :label="field.label || 'انتخاب فایل'"
-          :multiple="field.allowMultiple || false"
-          :required="field.required"
-        />
+          <client-only v-else-if="field.type === 'richText'">
+            <QuillEditor
+              v-model="formData[field.name]"
+              :placeholder="field.placeholder || field.label || field.name"
+            />
+          </client-only>
 
-        <!-- نوع نامعتبر -->
-        <div v-else class="text-red-500 text-sm">
-          نوع فیلد پشتیبانی نمی‌شود: {{ field.type }}
+          <MediaUploadInput
+            v-else-if="field.type === 'media'"
+            v-model="formData[field.name]"
+            :label="field.label || 'انتخاب فایل'"
+            :multiple="field.allowMultiple || false"
+            :required="field.required"
+          />
+
+          <p v-if="field.description" class="mt-1 text-sm text-gray-500">
+            {{ field.description }}
+          </p>
         </div>
-
-        <!-- توضیحات -->
-        <p v-if="field.description" class="mt-1 text-sm text-gray-500">
-          {{ field.description }}
-        </p>
       </div>
 
-      <button
-        type="submit"
-        class="bg-blue-600 hover:bg-blue-700 text-white py-2.5 px-6 rounded-lg mt-4 transition-colors"
-      >
-        {{ submitText }}
-      </button>
+      <!-- ستون دوم -->
+      <div class="flex flex-col w-1/3 gap-2">
+        <div
+          v-for="field in rightColumnFields"
+          :key="field.name"
+          class="flex flex-col gap-2"
+        >
+          <!-- تغییر شرط نمایش لیبل -->
+          <label
+            v-if="!['boolean', 'media', 'date'].includes(field.type)"
+            :for="field.name"
+            class="block text-sm font-medium text-gray-700"
+          >
+            {{ field.label || field.name }}
+            <span v-if="field.required" class="text-red-500">*</span>
+          </label>
+
+          <PersianDateTimeInput
+            v-if="field.type === 'date'"
+            v-model="formData[field.name]"
+            :id="field.name"
+            :label="field.label || 'تاریخ'"
+            :placeholder="field.placeholder || 'تاریخ را انتخاب کنید'"
+            class="w-full"
+          />
+
+          <BooleanSwitch
+            v-else-if="field.type === 'boolean'"
+            v-model="formData[field.name]"
+            :id="field.name"
+            :label="field.label || field.name"
+            :description="field.description || ''"
+          />
+
+          <input
+            v-else-if="field.type === 'number'"
+            v-model.number="formData[field.name]"
+            :id="field.name"
+            type="number"
+            :placeholder="field.placeholder || field.label || field.name"
+            :required="field.required"
+            class="border border-gray-300 rounded-lg p-2.5 w-full focus:ring-blue-500 focus:border-blue-500"
+          />
+
+          <select
+            v-else-if="field.type === 'select'"
+            v-model="formData[field.name]"
+            :id="field.name"
+            :required="field.required"
+            class="border border-gray-300 rounded-lg p-2.5 w-full focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option disabled :value="getEmptyValueForType('select')">
+              {{ field.placeholder || "انتخاب کنید" }}
+            </option>
+            <option
+              v-for="option in field.options || []"
+              :key="option.value"
+              :value="option.value"
+            >
+              {{ option.label }}
+            </option>
+          </select>
+
+          <p v-if="field.description" class="mt-1 text-sm text-gray-500">
+            {{ field.description }}
+          </p>
+        </div>
+
+        <!-- دکمه ارسال -->
+        <button
+          type="submit"
+          class="bg-blue hover:bg-blue-700 text-white py-2.5 px-6 rounded-lg mt-4 transition-colors"
+        >
+          {{ submitText }}
+        </button>
+      </div>
     </form>
   </div>
 </template>

@@ -1,5 +1,5 @@
 <template>
-  <UApp
+  <UApp class="bg-khakestari"
     :locale="fa_ir"
     :toaster="{ position: 'bottom-center', expand: true, duration: 5000 }"
   >

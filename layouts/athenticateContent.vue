@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-khakestari h-screen">
+  <div class="bg-khakestari min-h-screen">
     <FixedMenu class="z-10" />
     <div
       class="fixed right-16 h-screen bg-white w-64 px-4 py-4 z-0 flex flex-col justify-between"
@@ -30,8 +30,8 @@
       </div>
       <div>...</div>
     </div>
-    <div class="px-24 py-8">
-      <div class="mr-64">
+    <div class="p-10 h-full">
+      <div class="mr-80">
         <slot />
       </div>
     </div>

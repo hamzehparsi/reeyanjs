@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-khakestari h-screen">
+  <div class="bg-khakestari min-h-screen">
     <FixedMenu class="z-10" />
     <div
       class="fixed right-16 h-screen bg-white w-64 px-4 py-4 z-0 flex flex-col justify-between"
@@ -132,9 +132,9 @@
 </template>
 
 <script setup>
-import { ref, computed, reactive } from 'vue';
-import pluralize from 'pluralize';
-import { useContentTypes } from '~/composables/useContentTypes';
+import { ref, computed, reactive } from "vue";
+import pluralize from "pluralize";
+import { useContentTypes } from "~/composables/useContentTypes";
 
 const route = useRoute();
 const open = ref(false);
@@ -151,27 +151,27 @@ const error = computed(() => contentTypesState.value.error);
 const pluralizedName = computed(() => pluralize(formState.name.trim()));
 
 const formState = reactive({
-  name: '',
-  displayName: '',
+  name: "",
+  displayName: "",
 });
 
 // ایجاد نوع محتوای جدید
 async function createContentType() {
   try {
-    await $fetch('/api/content-types', {
-      method: 'POST',
+    await $fetch("/api/content-types", {
+      method: "POST",
       body: {
         name: formState.name.trim(),
         displayName: formState.displayName.trim(),
       },
     });
     await fetchContentTypes(); // رفرش لیست contentTypes
-    formState.name = '';
-    formState.displayName = '';
+    formState.name = "";
+    formState.displayName = "";
     open.value = false;
-    navigateTo('/admin/content-types');
+    navigateTo("/admin/content-types");
   } catch (err) {
-    console.error('خطا در ایجاد نوع محتوا:', err);
+    console.error("خطا در ایجاد نوع محتوا:", err);
   }
 }
 

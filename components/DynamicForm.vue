@@ -242,23 +242,26 @@ function handleSubmit() {
         </div>
 
         <!-- فیلد تاریخ -->
-        <div
-          v-for="field in rightColumnFields.filter((f) => f.type === 'date')"
-          :key="field.name"
-          class="flex flex-col gap-2"
-        >
-          <PersianDateTimeInput
-            v-model="formData[field.name]"
-            :id="field.name"
-            :label="field.label || 'تاریخ'"
-            :placeholder="field.placeholder || 'تاریخ را انتخاب کنید'"
-            class="w-full"
-          />
-
-          <p v-if="field.description" class="mt-1 text-sm text-gray-500">
-            {{ field.description }}
-          </p>
-        </div>
+         <ClientOnly>
+          
+           <div
+             v-for="field in rightColumnFields.filter((f) => f.type === 'date')"
+             :key="field.name"
+             class="flex flex-col gap-2"
+           >
+             <PersianDateTimeInput
+               v-model="formData[field.name]"
+               :id="field.name"
+               :label="field.label || 'تاریخ'"
+               :placeholder="field.placeholder || 'تاریخ را انتخاب کنید'"
+               class="w-full"
+             />
+   
+             <p v-if="field.description" class="mt-1 text-sm text-gray-500">
+               {{ field.description }}
+             </p>
+           </div>
+         </ClientOnly>
 
         <!-- فیلد انتخاب -->
         <div
@@ -328,7 +331,7 @@ function handleSubmit() {
             :multiple="false"
             :required="field.required"
             accept="image/*"
-            class="cover-image-uploader"
+            class="cover-image-uploader -mb-2"
           />
 
           <p v-if="field.description" class="mt-1 text-sm text-gray-500">
@@ -344,7 +347,7 @@ function handleSubmit() {
             {{ submitText }}
           </button>
           <NuxtLink
-            class="bg-slate-200 text-center hover:bg-slate-400 text-slate-600 py-2.5 px-6 rounded-lg mt-4 transition-colors"
+            class="bg-khakestari text-center hover:bg-slate-300 text-slate-600 py-2.5 px-6 rounded-lg mt-4 transition-colors"
             >انصراف</NuxtLink
           >
         </div>

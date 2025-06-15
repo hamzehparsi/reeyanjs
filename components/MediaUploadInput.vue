@@ -186,7 +186,7 @@ onMounted(() => {
       block
       type="button"
       @click="showMediaControls = !showMediaControls"
-      class="bg-blue text-white p-2.5 mt-3 rounded-lg hover:bg-blue-light duration-300 ease-in-out hover:text-blue cursor-pointer transition-colors"
+      class="bg-blue-light text-blue p-2.5 mt-3 rounded-lg hover:bg-khakestari duration-300 ease-in-out hover:text-blue cursor-pointer transition-colors"
     >
       <div class="flex items-center gap-2">
         <IconsImage class="size-6" />
@@ -201,17 +201,21 @@ onMounted(() => {
       <div
         v-for="(media, index) in selectedMedia"
         :key="media._id || index"
-        class="relative border border-slate-300 rounded-md p-1 flex flex-col items-center"
+        class="relative border border-blue-light rounded-md flex flex-col items-center"
       >
         <img
           v-if="media.mimeType && media.mimeType.startsWith('image/')"
           :src="media.url"
-          class="w-full h-24 object-cover rounded-md mb-1"
+          class="w-full h-24 object-cover rounded-md"
           alt="Selected media"
         />
-        <span v-else class="text-xs text-center break-all">{{
-          media.filename
-        }}</span>
+        <span
+          v-else
+          class="text-xs p-10 flex justify-center flex-col text-center gap-2 break-all"
+        >
+          <!-- <IconsFile class="size-8" /> -->
+          <span>{{ media.filename }}</span>
+        </span>
         <button
           type="button"
           @click="removeSelectedMedia(index)"
@@ -259,9 +263,9 @@ onMounted(() => {
           <UButton
             :variant="activeTab === 'upload' ? 'solid' : 'ghost'"
             block
-            :class="`justify-start mb-2 p-3 transition-all duration-300 ease-in-out hover:bg-blue-light hover:text-blue ${
+            :class="`justify-start p-3 rounded-t-lg rounded-b-none border-b-2 border-white transition-all duration-300 ease-in-out hover:bg-blue-light hover:text-blue ${
               activeTab === 'upload'
-                ? 'bg-blue font-bold text-white'
+                ? 'bg-blue-light border-blue font-bold text-blue'
                 : 'bg-transparent'
             }`"
             @click="activeTab = 'upload'"
@@ -272,9 +276,9 @@ onMounted(() => {
           <UButton
             :variant="activeTab === 'library' ? 'solid' : 'ghost'"
             block
-            :class="`justify-start p-3 transition-all duration-300 ease-in-out hover:bg-blue-light hover:text-blue ${
+            :class="`justify-start p-3 rounded-t-lg rounded-b-none border-b-2 border-white transition-all duration-300 ease-in-out hover:bg-blue-light hover:text-blue ${
               activeTab === 'library'
-                ? 'bg-blue font-bold text-white'
+                ? 'bg-blue-light border-blue font-bold text-blue'
                 : 'bg-transparent'
             }`"
             @click="activeTab = 'library'"
@@ -361,12 +365,9 @@ onMounted(() => {
                 />
                 <div
                   v-else
-                  class="w-full h-32 flex items-center justify-center bg-gray-100 dark:bg-gray-700"
+                  class="w-full h-24 flex items-center justify-center bg-gray-100 dark:bg-gray-700"
                 >
-                  <UIcon
-                    name="i-heroicons-document"
-                    class="w-16 h-16 text-gray-400"
-                  />
+                  <IconsFile class="size-10 text-gray-400" />
                 </div>
                 <div class="p-2 text-xs text-slate-500 truncate">
                   {{ media.filename }}

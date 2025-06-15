@@ -5,7 +5,12 @@ body {
   font-family: "Yekan Bakh FaNum";
   margin: 0;
 }
-
+.ql-editor.ql-blank::before{
+  font-family: "Yekan Bakh FaNum";
+}
+textarea::placeholder {
+  font-family: "Yekan Bakh FaNum";
+}
 h1,
 h2,
 h3,

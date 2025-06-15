@@ -30,23 +30,29 @@ const sortedFields = computed(() => {
 });
 
 const leftColumnFields = computed(() => {
-  return sortedFields.value.filter((f) =>
-    ["shortText", "longText", "richText", "media"].includes(f.type)
+  return sortedFields.value.filter(
+    (f) =>
+      ["shortText", "longText", "richText"].includes(f.type) ||
+      (f.type === "media" && f.allowMultiple) // گالری تصاویر به ستون چپ
   );
 });
 
 const rightColumnFields = computed(() => {
   return sortedFields.value
-    .filter((f) => ["number", "boolean", "date", "select"].includes(f.type))
+    .filter(
+      (f) =>
+        ["number", "boolean", "date", "select"].includes(f.type) ||
+        (f.type === "media" && !f.allowMultiple) // تصویر کاور به ستون راست
+    )
     .sort((a, b) => {
-      // اول تاریخ، سپس boolean، سپس بقیه
       const typeOrder = {
         date: 1,
         boolean: 2,
         number: 3,
         select: 4,
+        media: 5,
       };
-      return (typeOrder[a.type] || 5) - (typeOrder[b.type] || 5);
+      return (typeOrder[a.type] || 6) - (typeOrder[b.type] || 6);
     });
 });
 
@@ -113,15 +119,17 @@ function handleSubmit() {
 <template>
   <div class="bg-white p-7 rounded-lg">
     <form @submit.prevent="handleSubmit" class="flex items-start gap-6">
-      <!-- ستون اول -->
-      <div class="flex flex-col w-2/3 gap-2">
+      <!-- ستون چپ -->
+      <div class="flex flex-col w-2/3 gap-4">
+        <!-- فیلدهای متنی کوتاه و بلند -->
         <div
-          v-for="field in leftColumnFields"
+          v-for="field in leftColumnFields.filter((f) =>
+            ['shortText', 'longText'].includes(f.type)
+          )"
           :key="field.name"
           class="flex flex-col gap-2"
         >
           <label
-            v-if="field.type !== 'boolean' && field.type !== 'media'"
             :for="field.name"
             class="block text-sm font-medium text-gray-700"
           >
@@ -146,19 +154,55 @@ function handleSubmit() {
             :rows="field.rows || 4"
           />
 
-          <client-only v-else-if="field.type === 'richText'">
+          <p v-if="field.description" class="mt-1 text-sm text-gray-500">
+            {{ field.description }}
+          </p>
+        </div>
+
+        <!-- ویرایشگر متن پیشرفته -->
+        <div
+          v-for="field in leftColumnFields.filter((f) => f.type === 'richText')"
+          :key="field.name"
+          class="flex flex-col gap-2"
+        >
+          <label
+            :for="field.name"
+            class="block text-sm font-medium text-gray-700"
+          >
+            {{ field.label || field.name }}
+            <span v-if="field.required" class="text-red-500">*</span>
+          </label>
+
+          <client-only>
             <QuillEditor
               v-model="formData[field.name]"
               :placeholder="field.placeholder || field.label || field.name"
             />
           </client-only>
 
+          <p v-if="field.description" class="mt-1 text-sm text-gray-500">
+            {{ field.description }}
+          </p>
+        </div>
+
+        <!-- گالری تصاویر -->
+        <div
+          v-for="field in leftColumnFields.filter((f) => f.type === 'media')"
+          :key="field.name"
+          class="flex flex-col gap-2 mt-4"
+        >
+          <label class="block text-sm font-medium text-gray-700">
+            {{ field.label || "گالری تصاویر" }}
+            <span v-if="field.required" class="text-red-500">*</span>
+          </label>
+
           <MediaUploadInput
-            v-else-if="field.type === 'media'"
             v-model="formData[field.name]"
-            :label="field.label || 'انتخاب فایل'"
-            :multiple="field.allowMultiple || false"
+            :label="field.label || 'آپلود تصاویر'"
+            :multiple="true"
             :required="field.required"
+            accept="image/*"
+            class="gallery-uploader"
           />
 
           <p v-if="field.description" class="mt-1 text-sm text-gray-500">
@@ -167,16 +211,15 @@ function handleSubmit() {
         </div>
       </div>
 
-      <!-- ستون دوم -->
+      <!-- ستون راست -->
       <div class="flex flex-col w-1/3 gap-2">
+        <!-- فیلد عددی -->
         <div
-          v-for="field in rightColumnFields"
+          v-for="field in rightColumnFields.filter((f) => f.type === 'number')"
           :key="field.name"
           class="flex flex-col gap-2"
         >
-          <!-- تغییر شرط نمایش لیبل -->
           <label
-            v-if="!['boolean', 'media', 'date'].includes(field.type)"
             :for="field.name"
             class="block text-sm font-medium text-gray-700"
           >
@@ -184,25 +227,7 @@ function handleSubmit() {
             <span v-if="field.required" class="text-red-500">*</span>
           </label>
 
-          <PersianDateTimeInput
-            v-if="field.type === 'date'"
-            v-model="formData[field.name]"
-            :id="field.name"
-            :label="field.label || 'تاریخ'"
-            :placeholder="field.placeholder || 'تاریخ را انتخاب کنید'"
-            class="w-full"
-          />
-
-          <BooleanSwitch
-            v-else-if="field.type === 'boolean'"
-            v-model="formData[field.name]"
-            :id="field.name"
-            :label="field.label || field.name"
-            :description="field.description || ''"
-          />
-
           <input
-            v-else-if="field.type === 'number'"
             v-model.number="formData[field.name]"
             :id="field.name"
             type="number"
@@ -211,8 +236,45 @@ function handleSubmit() {
             class="border border-gray-300 rounded-lg p-2.5 w-full focus:ring-blue-500 focus:border-blue-500"
           />
 
+          <p v-if="field.description" class="mt-1 text-sm text-gray-500">
+            {{ field.description }}
+          </p>
+        </div>
+
+        <!-- فیلد تاریخ -->
+        <div
+          v-for="field in rightColumnFields.filter((f) => f.type === 'date')"
+          :key="field.name"
+          class="flex flex-col gap-2"
+        >
+          <PersianDateTimeInput
+            v-model="formData[field.name]"
+            :id="field.name"
+            :label="field.label || 'تاریخ'"
+            :placeholder="field.placeholder || 'تاریخ را انتخاب کنید'"
+            class="w-full"
+          />
+
+          <p v-if="field.description" class="mt-1 text-sm text-gray-500">
+            {{ field.description }}
+          </p>
+        </div>
+
+        <!-- فیلد انتخاب -->
+        <div
+          v-for="field in rightColumnFields.filter((f) => f.type === 'select')"
+          :key="field.name"
+          class="flex flex-col gap-2"
+        >
+          <label
+            :for="field.name"
+            class="block text-sm font-medium text-gray-700"
+          >
+            {{ field.label || field.name }}
+            <span v-if="field.required" class="text-red-500">*</span>
+          </label>
+
           <select
-            v-else-if="field.type === 'select'"
             v-model="formData[field.name]"
             :id="field.name"
             :required="field.required"
@@ -235,14 +297,60 @@ function handleSubmit() {
           </p>
         </div>
 
-        <!-- دکمه ارسال -->
-        <button
-          type="submit"
-          class="bg-blue hover:bg-blue-700 text-white py-2.5 px-6 rounded-lg mt-4 transition-colors"
+        <!-- حالت انتشار -->
+        <div
+          v-for="field in rightColumnFields.filter((f) => f.type === 'boolean')"
+          :key="field.name"
+          class="flex flex-col gap-2"
         >
-          {{ submitText }}
-        </button>
+          <BooleanSwitch
+            v-model="formData[field.name]"
+            :id="field.name"
+            :label="field.label || 'حالت انتشار'"
+            :description="field.description || ''"
+          />
+        </div>
+
+        <!-- تصویر کاور -->
+        <div
+          v-for="field in rightColumnFields.filter((f) => f.type === 'media')"
+          :key="field.name"
+          class="flex flex-col gap-2 mt-2"
+        >
+          <label class="block text-sm font-medium text-gray-700">
+            {{ field.label || "تصویر کاور" }}
+            <span v-if="field.required" class="text-red-500">*</span>
+          </label>
+
+          <MediaUploadInput
+            v-model="formData[field.name]"
+            :label="field.label || 'آپلود تصویر کاور'"
+            :multiple="false"
+            :required="field.required"
+            accept="image/*"
+            class="cover-image-uploader"
+          />
+
+          <p v-if="field.description" class="mt-1 text-sm text-gray-500">
+            {{ field.description }}
+          </p>
+        </div>
+        <div class="flex flex-col">
+          <!-- دکمه ارسال -->
+          <button
+            type="submit"
+            class="bg-blue hover:bg-blue-700 text-white py-2.5 px-6 rounded-lg mt-4 transition-colors"
+          >
+            {{ submitText }}
+          </button>
+          <NuxtLink
+            class="bg-slate-200 text-center hover:bg-slate-400 text-slate-600 py-2.5 px-6 rounded-lg mt-4 transition-colors"
+            >انصراف</NuxtLink
+          >
+        </div>
       </div>
     </form>
   </div>
 </template>
+
+<style scoped></style>

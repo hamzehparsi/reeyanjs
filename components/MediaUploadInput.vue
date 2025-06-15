@@ -186,9 +186,12 @@ onMounted(() => {
       block
       type="button"
       @click="showMediaControls = !showMediaControls"
-      class="bg-blue text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors"
+      class="bg-blue text-white p-2.5 mt-3 rounded-lg hover:bg-blue-light duration-300 ease-in-out hover:text-blue cursor-pointer transition-colors"
     >
-      {{ label }}
+      <div class="flex items-center gap-2">
+        <IconsImage class="size-6" />
+        <span>{{ label }}</span>
+      </div>
     </UButton>
 
     <div
@@ -198,12 +201,12 @@ onMounted(() => {
       <div
         v-for="(media, index) in selectedMedia"
         :key="media._id || index"
-        class="relative border rounded-md p-1 flex flex-col items-center"
+        class="relative border border-slate-300 rounded-md p-1 flex flex-col items-center"
       >
         <img
           v-if="media.mimeType && media.mimeType.startsWith('image/')"
           :src="media.url"
-          class="w-20 h-20 object-cover rounded-md mb-1"
+          class="w-full h-24 object-cover rounded-md mb-1"
           alt="Selected media"
         />
         <span v-else class="text-xs text-center break-all">{{
@@ -212,15 +215,15 @@ onMounted(() => {
         <button
           type="button"
           @click="removeSelectedMedia(index)"
-          class="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 text-xs leading-none"
+          class="absolute top-3 right-3 bg-red-500 text-white rounded-lg p-0.5 text-xs leading-none"
         >
-          ×
+          <IconsDeleteIcon class="p-0.5 size-6" />
         </button>
       </div>
     </div>
     <div
       v-else-if="selectedMedia.length && !props.multiple"
-      class="mt-2 flex items-center space-x-2"
+      class="mt-2 relative"
     >
       <template v-if="selectedMedia[0]?.url">
         <img
@@ -229,16 +232,16 @@ onMounted(() => {
             selectedMedia[0].mimeType.startsWith('image/')
           "
           :src="selectedMedia[0].url"
-          class="w-16 h-16 object-cover rounded-md"
+          class="w-full h-64 z-0 object-cover rounded-md"
           alt="Selected media"
         />
         <span v-else>{{ selectedMedia[0].filename }}</span>
         <button
           type="button"
           @click="removeSelectedMedia(0)"
-          class="text-red-500 text-sm"
+          class="text-red-500 text-sm absolute left-5 top-5 z-10"
         >
-          حذف
+          <IconsDeleteIcon class="bg-white p-1 rounded-lg text-red-500" />
         </button>
       </template>
       <span v-else
@@ -251,38 +254,42 @@ onMounted(() => {
       v-if="showMediaControls"
       class="mt-4 border border-slate-300 rounded-lg overflow-hidden"
     >
-      <div class="flex">
-        <div class="w-1/4 p-4 border-l border-gray-200 dark:border-gray-700">
+      <div class="flex flex-col">
+        <div class="w-full p-4 border-l border-gray-200 dark:border-gray-700">
           <UButton
             :variant="activeTab === 'upload' ? 'solid' : 'ghost'"
             block
-            class="justify-start mb-2 p-3 hover:bg-blue-light hover:text-blue transition-all duration-300 ease-in-out"
-            :class="
-              activeTab === 'upload' ? 'bg-blue font-bold' : 'bg-transparent'
-            "
+            :class="`justify-start mb-2 p-3 transition-all duration-300 ease-in-out hover:bg-blue-light hover:text-blue ${
+              activeTab === 'upload'
+                ? 'bg-blue font-bold text-white'
+                : 'bg-transparent'
+            }`"
             @click="activeTab = 'upload'"
           >
             بارگذاری فایل
           </UButton>
+
           <UButton
             :variant="activeTab === 'library' ? 'solid' : 'ghost'"
             block
-            class="justify-start p-3 hover:bg-blue-light hover:text-blue transition-all duration-300 ease-in-out"
-            :class="
-              activeTab === 'library' ? 'bg-blue font-bold' : 'bg-transparent'
-            "
+            :class="`justify-start p-3 transition-all duration-300 ease-in-out hover:bg-blue-light hover:text-blue ${
+              activeTab === 'library'
+                ? 'bg-blue font-bold text-white'
+                : 'bg-transparent'
+            }`"
             @click="activeTab = 'library'"
           >
             تصاویر موجود
           </UButton>
         </div>
-        <div class="w-3/4 p-4">
+
+        <div class="w-full p-4">
           <div v-if="activeTab === 'upload'">
             <h4 class="text-sm font-bold tracking-tighter mb-4">
               بارگذاری فایل جدید
             </h4>
             <div
-              class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 text-center cursor-pointer hover:border-blue-500 transition-colors"
+              class="border-2 border-dashed border-slate-300 dark:border-gray-600 rounded-lg p-6 text-center cursor-pointer hover:border-blue-500 transition-colors"
               @click="$refs.fileInput.click()"
             >
               <input
@@ -340,7 +347,7 @@ onMounted(() => {
               <div
                 v-for="media in mediaItems"
                 :key="media._id"
-                class="relative border rounded-lg overflow-hidden cursor-pointer"
+                class="relative border border-slate-300 rounded-lg overflow-hidden cursor-pointer"
                 :class="{
                   'border-blue ring-2 ring-blue': isMediaSelected(media),
                 }"
@@ -349,7 +356,7 @@ onMounted(() => {
                 <img
                   v-if="media.mimeType && media.mimeType.startsWith('image/')"
                   :src="media.url"
-                  class="w-full h-32 object-cover"
+                  class="w-full h-24 object-cover"
                   alt="Media item"
                 />
                 <div
@@ -361,12 +368,14 @@ onMounted(() => {
                     class="w-16 h-16 text-gray-400"
                   />
                 </div>
-                <div class="p-2 text-sm truncate">{{ media.filename }}</div>
+                <div class="p-2 text-xs text-slate-500 truncate">
+                  {{ media.filename }}
+                </div>
                 <div
                   v-if="isMediaSelected(media)"
-                  class="absolute top-1 left-1 bg-blue text-white rounded-full p-1 text-xs"
+                  class="absolute top-1 left-1 bg-blue text-white rounded-xl p-0.5 text-xs"
                 >
-                  <UIcon name="i-heroicons-check" class="w-3 h-3" />
+                  <IconsCheck class="p-0.5 rounded-lg text-white size-6" />
                 </div>
               </div>
             </div>

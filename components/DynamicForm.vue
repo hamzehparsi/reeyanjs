@@ -28,6 +28,7 @@ const formData = ref({});
 const sortedFields = computed(() => {
   return props.fields.slice().sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 });
+console.log(sortedFields);
 
 const leftColumnFields = computed(() => {
   return sortedFields.value.filter(
@@ -41,7 +42,9 @@ const rightColumnFields = computed(() => {
   return sortedFields.value
     .filter(
       (f) =>
-        ["number", "boolean", "date", "select"].includes(f.type) ||
+        ["number", "boolean", "date", "select", "multiSelect"].includes(
+          f.type
+        ) ||
         (f.type === "media" && !f.allowMultiple) // تصویر کاور به ستون راست
     )
     .sort((a, b) => {
@@ -242,30 +245,31 @@ function handleSubmit() {
         </div>
 
         <!-- فیلد تاریخ -->
-         <ClientOnly>
-          
-           <div
-             v-for="field in rightColumnFields.filter((f) => f.type === 'date')"
-             :key="field.name"
-             class="flex flex-col gap-2"
-           >
-             <PersianDateTimeInput
-               v-model="formData[field.name]"
-               :id="field.name"
-               :label="field.label || 'تاریخ'"
-               :placeholder="field.placeholder || 'تاریخ را انتخاب کنید'"
-               class="w-full"
-             />
-   
-             <p v-if="field.description" class="mt-1 text-sm text-gray-500">
-               {{ field.description }}
-             </p>
-           </div>
-         </ClientOnly>
+        <ClientOnly>
+          <div
+            v-for="field in rightColumnFields.filter((f) => f.type === 'date')"
+            :key="field.name"
+            class="flex flex-col gap-2"
+          >
+            <PersianDateTimeInput
+              v-model="formData[field.name]"
+              :id="field.name"
+              :label="field.label || 'تاریخ'"
+              :placeholder="field.placeholder || 'تاریخ را انتخاب کنید'"
+              class="w-full"
+            />
+
+            <p v-if="field.description" class="mt-1 text-sm text-gray-500">
+              {{ field.description }}
+            </p>
+          </div>
+        </ClientOnly>
 
         <!-- فیلد انتخاب -->
         <div
-          v-for="field in rightColumnFields.filter((f) => f.type === 'select')"
+          v-for="field in rightColumnFields.filter((f) =>
+            ['select', 'multiSelect'].includes(f.type)
+          )"
           :key="field.name"
           class="flex flex-col gap-2"
         >
@@ -277,23 +281,14 @@ function handleSubmit() {
             <span v-if="field.required" class="text-red-500">*</span>
           </label>
 
-          <select
+          <SelectBoxInput
             v-model="formData[field.name]"
             :id="field.name"
+            :items="field.options || []"
+            :placeholder="field.placeholder || 'انتخاب کنید'"
             :required="field.required"
-            class="border border-gray-300 rounded-lg p-2.5 w-full focus:ring-blue-500 focus:border-blue-500"
-          >
-            <option disabled :value="getEmptyValueForType('select')">
-              {{ field.placeholder || "انتخاب کنید" }}
-            </option>
-            <option
-              v-for="option in field.options || []"
-              :key="option.value"
-              :value="option.value"
-            >
-              {{ option.label }}
-            </option>
-          </select>
+            :multiple="field.multiple"
+          />
 
           <p v-if="field.description" class="mt-1 text-sm text-gray-500">
             {{ field.description }}
@@ -304,7 +299,7 @@ function handleSubmit() {
         <div
           v-for="field in rightColumnFields.filter((f) => f.type === 'boolean')"
           :key="field.name"
-          class="flex flex-col gap-2"
+          class="flex flex-col gap-2 mt-2"
         >
           <BooleanSwitch
             v-model="formData[field.name]"

@@ -8,6 +8,10 @@ body {
 .ql-editor.ql-blank::before{
   font-family: "Yekan Bakh FaNum";
 }
+.ql-editor {
+    text-align: right;
+    min-height: 150px;
+}
 textarea::placeholder {
   font-family: "Yekan Bakh FaNum";
 }

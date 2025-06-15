@@ -236,7 +236,7 @@ onMounted(() => {
             selectedMedia[0].mimeType.startsWith('image/')
           "
           :src="selectedMedia[0].url"
-          class="w-full h-64 z-0 object-cover rounded-md"
+          class="w-full h-48 z-0 object-cover rounded-lg"
           alt="Selected media"
         />
         <span v-else>{{ selectedMedia[0].filename }}</span>
@@ -360,7 +360,7 @@ onMounted(() => {
                 <img
                   v-if="media.mimeType && media.mimeType.startsWith('image/')"
                   :src="media.url"
-                  class="w-full h-24 object-cover"
+                  class="w-full h-20 object-cover"
                   alt="Media item"
                 />
                 <div

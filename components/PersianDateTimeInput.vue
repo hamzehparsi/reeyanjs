@@ -47,4 +47,8 @@ watch(
 watch(internalValue, (val) => {
   emit('update:modelValue', val)
 })
+onMounted(() => {
+  console.log('📅 مقدار اولیه input تاریخ:', internalValue.value)
+})
+
 </script>

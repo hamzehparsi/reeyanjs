@@ -1,3 +1,4 @@
+// server\api\content-types\[id]\fields.post.js
 import ContentType from "~/server/models/ContentType";
 import mongoose from "mongoose";
 import { modelCache } from '~/server/utils/model-factory';
@@ -19,9 +20,9 @@ export default defineEventHandler(async (event) => {
     label: body.label,
     type: body.type,
     options: Array.isArray(body.options)
-      ? body.options[0].split("،").map((o) => o.trim())
+      ? body.options[0].split("/").map((o) => o.trim())
       : typeof body.options === "string"
-      ? body.options.split("،").map((o) => o.trim())
+      ? body.options.split("/").map((o) => o.trim())
       : [],
     allowMultiple: body.allowMultiple || false, // اضافه کردن allowMultiple
   });

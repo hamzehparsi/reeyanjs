@@ -1,17 +1,17 @@
-<!-- pages\admin\collection\[collectionName]\[id]\edit.vue -->
 <script setup>
-const route = useRoute()
-const collectionName = route.params.collectionName
-const id = route.params.id
+const route = useRoute();
+const collectionName = route.params.collectionName;
+const id = route.params.id;
 
 definePageMeta({
   layout: "athenticate-content",
   middleware: ["auth-required"],
 });
+
 // 1. دریافت ساختار فیلدها
 const { data: contentType } = await useFetch(
   `/api/content-types/by-name/${collectionName}`
-)
+);
 
 // 2. دریافت داده موجود
 const { data: existingData } = await useFetch(
@@ -19,59 +19,61 @@ const { data: existingData } = await useFetch(
   {
     transform: (data) => {
       // تبدیل داده به فرمت مورد نیاز
-      const transformed = { ...data }
+      const transformed = { ...data };
       // تبدیل آرایه‌های ObjectId به رشته (اگر نیاز باشد)
       if (data.gallery) {
-        transformed.gallery = data.gallery.map(item => item.toString())
+        transformed.gallery = data.gallery.map((item) => item.toString());
       }
-      return transformed
-    }
+      return transformed;
+    },
   }
-)
+);
 
 // 3. مقداردهی اولیه با watchEffect
-const initialValues = ref({})
+const initialValues = ref({});
 
 watchEffect(() => {
   if (contentType.value && existingData.value) {
-    const values = {}
-    contentType.value.fields.forEach(field => {
+    const values = {};
+    contentType.value.fields.forEach((field) => {
       // مقداردهی با اولویت: داده موجود → مقدار پیش‌فرض → مقدار خالی
-      values[field.name] = existingData.value[field.name] !== undefined
-        ? existingData.value[field.name]
-        : field.defaultValue !== undefined
+      values[field.name] =
+        existingData.value[field.name] !== undefined
+          ? existingData.value[field.name]
+          : field.defaultValue !== undefined
           ? field.defaultValue
           : field.allowMultiple
-            ? []
-            : ''
-    })
-    initialValues.value = values
-    console.log('مقادیر اولیه:', initialValues.value) // برای دیباگ
+          ? []
+          : "";
+    });
+    initialValues.value = values;
+    console.log("مقادیر اولیه:", initialValues.value); // برای دیباگ
   }
-})
+});
+
 async function handleFormSubmit(formData) {
   try {
     const response = await $fetch(`/api/entries/${collectionName}/${id}`, {
-      method: 'PUT',
-      body: formData
+      method: "PUT",
+      body: formData,
     });
-    navigateTo(`/admin/collection/${collectionName}`)
+    navigateTo(`/admin/collection/${collectionName}`);
     console.log("ویرایش با موفقیت انجام شد", response);
-    // شاید بخوای ریدایرکت کنی:
-    // navigateTo(`/admin/collection/${collectionName}`);
   } catch (error) {
     console.error("خطا در ذخیره‌سازی:", error);
   }
 }
-
 </script>
 
 <template>
   <div>
-    <DynamicForm v-if="Object.keys(initialValues).length > 0 && contentType?.fields" :fields="contentType.fields"
-      :initial-values="initialValues" submit-text="ذخیره تغییرات" @submit="handleFormSubmit" />
-    <div v-else class="text-center py-8">
-      در حال بارگذاری فرم...
-    </div>
+    <DynamicForm
+      v-if="Object.keys(initialValues).length > 0 && contentType?.fields"
+      :fields="contentType.fields"
+      :initial-values="initialValues"
+      submit-text="ذخیره تغییرات"
+      @submit="handleFormSubmit"
+    />
+    <div v-else class="text-center py-8">در حال بارگذاری فرم...</div>
   </div>
 </template>

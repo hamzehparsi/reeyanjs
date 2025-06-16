@@ -1,9 +1,4 @@
 <script setup>
-import { ref, watch, computed } from "vue";
-import dayjs from "dayjs";
-import jalaliday from "jalaliday";
-dayjs.extend(jalaliday);
-
 const props = defineProps({
   fields: {
     type: Array,
@@ -28,13 +23,12 @@ const formData = ref({});
 const sortedFields = computed(() => {
   return props.fields.slice().sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 });
-console.log(sortedFields);
 
 const leftColumnFields = computed(() => {
   return sortedFields.value.filter(
     (f) =>
-      ["shortText", "longText", "richText"].includes(f.type) ||
-      (f.type === "media" && f.allowMultiple) // گالری تصاویر به ستون چپ
+      ["shortText", "longText", "richText", "tags"].includes(f.type) ||
+      (f.type === "media" && f.allowMultiple)
   );
 });
 
@@ -45,7 +39,7 @@ const rightColumnFields = computed(() => {
         ["number", "boolean", "date", "select", "multiSelect"].includes(
           f.type
         ) ||
-        (f.type === "media" && !f.allowMultiple) // تصویر کاور به ستون راست
+        (f.type === "media" && !f.allowMultiple)
     )
     .sort((a, b) => {
       const typeOrder = {
@@ -58,6 +52,8 @@ const rightColumnFields = computed(() => {
       return (typeOrder[a.type] || 6) - (typeOrder[b.type] || 6);
     });
 });
+const m = useNuxtApp().$moment;
+import moment from "moment-jalaali";
 
 watch(
   () => [props.fields, props.initialValues],
@@ -66,12 +62,27 @@ watch(
 
     const newFormData = {};
     fields.forEach((field) => {
-      newFormData[field.name] =
+      let value =
         initialValues[field.name] !== undefined
           ? initialValues[field.name]
           : field.defaultValue !== undefined
           ? field.defaultValue
           : getEmptyValueForType(field.type, field.allowMultiple);
+      console.log("Raw date value:", value);
+
+      // تبدیل تاریخ میلادی به شمسی
+      if (field.type === "date" && value) {
+        try {
+          value = m(value).format("jYYYY/jMM/jDD HH:mm");
+          console.log("📅 Converted to Jalali:", value);
+        } catch (e) {
+          value = "";
+        }
+      }
+
+      newFormData[field.name] = value;
+
+      console.log("Formatted Jalali:", value);
     });
 
     formData.value = newFormData;
@@ -89,10 +100,10 @@ function getEmptyValueForType(type, allowMultiple = false) {
     richText: "",
     boolean: false,
     media: allowMultiple ? [] : null,
+    tags: [],
   };
   return typeMap[type] ?? "";
 }
-
 function handleSubmit() {
   const cleanedData = {};
 
@@ -102,9 +113,11 @@ function handleSubmit() {
 
     if (val !== null && val !== undefined && val !== "") {
       if (field.type === "date") {
-        const m = dayjs(val, { jalali: true });
+        const m = moment(val, "jYYYY/jMM/jDD HH:mm", true);
         if (m.isValid()) {
-          cleanedData[key] = m.toDate();
+          cleanedData[key] = m.toDate(); // تبدیل به تاریخ میلادی برای ذخیره
+        } else {
+          cleanedData[key] = null; // یا مقدار پیش‌فرض در صورت نامعتبر بودن
         }
       } else if (field.type === "number") {
         cleanedData[key] = Number(val);
@@ -114,12 +127,13 @@ function handleSubmit() {
     }
   });
 
-  console.log("✅ Prepared payload:", cleanedData);
   emit("submit", cleanedData);
 }
+const router = useRouter();
 </script>
 
 <template>
+  <!-- قالب بدون تغییر باقی می‌ماند -->
   <div class="bg-white p-7 rounded-lg">
     <form @submit.prevent="handleSubmit" class="flex items-start gap-6">
       <!-- ستون چپ -->
@@ -182,6 +196,42 @@ function handleSubmit() {
               :placeholder="field.placeholder || field.label || field.name"
             />
           </client-only>
+
+          <p v-if="field.description" class="mt-1 text-sm text-gray-500">
+            {{ field.description }}
+          </p>
+        </div>
+
+        <!-- فیلد تگ‌ها -->
+        <div
+          v-for="field in leftColumnFields.filter((f) => f.type === 'tags')"
+          :key="field.name"
+          class="flex flex-col gap-2"
+        >
+          <label
+            :for="field.name"
+            class="block text-sm font-medium text-gray-700"
+          >
+            {{ field.label || field.name }}
+            <span v-if="field.required" class="text-red-500">*</span>
+          </label>
+
+          <UInputTags
+            v-model="formData[field.name]"
+            :placeholder="field.placeholder || 'تگ جدید را وارد کنید'"
+            :ui="{
+              base: 'w-full',
+              inner: {
+                input: {
+                  base: 'rtl text-right',
+                },
+              },
+              tag: {
+                base: 'bg-blue-100 text-blue-800',
+                remove: 'text-blue-600 hover:text-blue-800',
+              },
+            }"
+          />
 
           <p v-if="field.description" class="mt-1 text-sm text-gray-500">
             {{ field.description }}
@@ -333,6 +383,7 @@ function handleSubmit() {
             {{ field.description }}
           </p>
         </div>
+
         <div class="flex flex-col">
           <!-- دکمه ارسال -->
           <button
@@ -342,7 +393,8 @@ function handleSubmit() {
             {{ submitText }}
           </button>
           <NuxtLink
-            class="bg-khakestari text-center hover:bg-slate-300 text-slate-600 py-2.5 px-6 rounded-lg mt-4 transition-colors"
+            @click="$router.back()"
+            class="bg-khakestari text-center hover:bg-slate-200 cursor-pointer text-slate-600 py-2.5 px-6 rounded-lg mt-4 transition-colors"
             >انصراف</NuxtLink
           >
         </div>

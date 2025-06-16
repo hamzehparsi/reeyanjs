@@ -246,7 +246,7 @@ async function deleteField(fieldId) {
         <!-- type -->
         <div class="flex gap-2 flex-col">
           <label class="text-xs text-right block mb-1" for="type">نوع فیلد</label>
-          <USelect id="type" v-model="formState.type" size="lg" :items="fieldTypes" option-attribute="label"
+          <USelect id="type" v-model="formState.type" size="xl" :items="fieldTypes" option-attribute="label"
             value-attribute="value" class="rounded-lg" />
         </div>
 

@@ -22,7 +22,7 @@ const props = defineProps({
   },
   multiple: {
     type: Boolean,
-    default: false,
+    default: true,
   },
 });
 

@@ -68,7 +68,7 @@ const paginatedItems = computed(() => {
   const end = start + pagination.value.pageSize;
   return sortedItems.value.slice(start, end);
 });
-import dayjs from "dayjs";
+import moment from "moment-jalaali";
 
 // Columns definition
 const columns = [
@@ -79,7 +79,7 @@ const columns = [
       h("div", { class: "text-wrap min-w-96 leading-6" }, row.original.title),
   },
   {
-    accessorKey: "date", // تغییر از createdAt به date
+    accessorKey: "date",
     header: ({ column }) => {
       const isSorted = column.getIsSorted();
 
@@ -97,8 +97,11 @@ const columns = [
       });
     },
     cell: ({ row }) =>
-      dayjs(row.original.date).calendar("jalali").format("YYYY/MM/DD"),
+      moment(row.original.date).isValid()
+        ? moment(row.original.date).format("jYYYY/jMM/jDD")
+        : "—", // اگر تاریخ نامعتبر بود
   },
+
   {
     id: "action",
     header: "عملیات",

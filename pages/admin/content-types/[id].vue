@@ -153,8 +153,8 @@ async function deleteField(fieldId) {
     <div v-else-if="error">❌ خطا: {{ error.message }}</div>
     <div v-else>
       <div class="flex justify-between items-center w-full">
-        <div class="flex flex-col gap-1 pr-3">
-          <h1 class="text-xl font-bold tracking-tighter">
+        <div class="flex flex-col pr-3">
+          <h1 class="text-xl font-black tracking-tighter">
             {{ contentType.displayName }}
           </h1>
           <span class="text-xs text-blue-dark">{{ contentType?.collectionName }}</span>
